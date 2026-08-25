@@ -19,6 +19,7 @@ export default function Header() {
   }, [location.pathname])
 
   function handleLogout() {
+    if (!confirm('Are you sure you want to log out?')) return
     logout()
     toast('Logged out successfully')
     navigate('/')
