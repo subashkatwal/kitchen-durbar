@@ -1,0 +1,53 @@
+# --- Environment / secrets ---
+# Every .env file is ignored (root, frontend, backend, anywhere) — the
+# .env.example templates are NOT matched by this pattern and stay tracked.
+.env
+.env.*
+!.env.example
+!*/.env.example
+
+# --- Backend (Django / Python) ---
+kitchen-durbar-backend/**/__pycache__/
+kitchen-durbar-backend/**/*.py[cod]
+kitchen-durbar-backend/**/*$py.class
+kitchen-durbar-backend/staticfiles/
+kitchen-durbar-backend/media/
+kitchen-durbar-backend/*.sqlite3
+kitchen-durbar-backend/.venv/
+kitchen-durbar-backend/venv/
+kitchen-durbar-backend/env/
+kitchen-durbar-backend/.pytest_cache/
+kitchen-durbar-backend/.coverage
+kitchen-durbar-backend/htmlcov/
+
+# --- Frontend (Node / Vite / TypeScript) ---
+kitchen-durbar-frontend/node_modules/
+kitchen-durbar-frontend/dist/
+kitchen-durbar-frontend/dist-ssr/
+kitchen-durbar-frontend/.vite/
+kitchen-durbar-frontend/coverage/
+kitchen-durbar-frontend/*.tsbuildinfo
+kitchen-durbar-frontend/npm-debug.log*
+kitchen-durbar-frontend/yarn-debug.log*
+kitchen-durbar-frontend/yarn-error.log*
+kitchen-durbar-frontend/pnpm-debug.log*
+
+# --- Docker ---
+# Nothing to ignore here — Dockerfiles and compose files are meant to be
+# tracked. Named volumes (pg_data, static_data, frontend_node_modules) live
+# inside Docker itself, not as files in this tree.
+
+# --- Editors / IDEs ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs ---
+*.log
