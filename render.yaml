@@ -60,8 +60,12 @@ services:
           property: port
       - key: DJANGO_SUPERUSER_EMAIL
         value: admin@kitchendurbar.com
+      # A password you choose and can see, not a generated secret hidden in
+      # Render's UI. It's re-applied to the admin account on every deploy
+      # (see createsuperuser_if_missing), so changing this value + redeploying
+      # is also how you reset it if you forget it.
       - key: DJANGO_SUPERUSER_PASSWORD
-        generateValue: true
+        sync: false
       - key: DJANGO_SUPERUSER_NAME
         value: Admin User
       - key: GOOGLE_CLIENT_ID
@@ -84,6 +88,16 @@ services:
         sync: false
       - key: OTP_EXPIRY_MINUTES
         value: "10"
+    # NOTE: product image uploads land in /app/media inside the container,
+    # which is ephemeral on Render's free plan - they're wiped on every
+    # redeploy/restart. To make uploads persistent, upgrade this service off
+    # "free" and add:
+    #   disk:
+    #     name: media
+    #     mountPath: /app/media
+    #     sizeGB: 1
+    # (disks require a paid instance type, so it's left out here to keep the
+    # free-tier Blueprint apply from failing.)
 
   # Render's native Static Site - no Docker/nginx involved. It runs
   # `buildCommand` once, uploads `staticPublishPath` to Render's own static

@@ -46,7 +46,7 @@ export default function ProductDetail() {
     <div className="kd-pg active">
       <div className="kd-pd">
         <div className="kd-pdi">
-          <Icon name={product.icon} />
+          {product.image ? <img src={product.image} alt={product.name} /> : <Icon name={product.icon} />}
         </div>
         <div>
           <div style={{ color: 'var(--ka)', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>

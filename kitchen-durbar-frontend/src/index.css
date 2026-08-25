@@ -46,8 +46,9 @@ input,select{font-family:inherit;outline:none}
 .kd-pg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px}
 .kd-pcard{background:var(--kc);border:1px solid var(--kbd);border-radius:var(--kr);overflow:hidden;transition:all 0.25s;cursor:pointer}
 .kd-pcard:hover{box-shadow:0 8px 30px rgba(0,0,0,0.12);transform:translateY(-3px)}
-.kd-pimg{height:190px;background:linear-gradient(135deg,#f1f3f5 0%,#e9ecef 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--kbd)}
+.kd-pimg{height:190px;background:linear-gradient(135deg,#f1f3f5 0%,#e9ecef 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--kbd);overflow:hidden}
 .kd-pimg svg{width:64px;height:64px;color:var(--ktm);opacity:0.5}
+.kd-pimg img{width:100%;height:100%;object-fit:cover}
 .kd-pi{padding:18px}
 .kd-pcat{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--ka);font-weight:700;margin-bottom:6px}
 .kd-pn{font-size:15px;font-weight:600;margin-bottom:6px;line-height:1.35;color:var(--kt)}
@@ -137,8 +138,9 @@ input,select{font-family:inherit;outline:none}
 .kd-mo.active .kd-md{transform:scale(1)}
 .kd-md h3{margin-bottom:20px;font-size:20px;font-weight:700}
 .kd-pd{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:1000px;margin:40px auto;background:var(--kc);border:1px solid var(--kbd);border-radius:12px;padding:40px;box-shadow:var(--ksh)}
-.kd-pdi{background:linear-gradient(135deg,#f1f3f5,#e9ecef);border-radius:var(--kr);height:380px;display:flex;align-items:center;justify-content:center}
+.kd-pdi{background:linear-gradient(135deg,#f1f3f5,#e9ecef);border-radius:var(--kr);height:380px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .kd-pdi svg{width:120px;height:120px;color:var(--ktm);opacity:0.4}
+.kd-pdi img{width:100%;height:100%;object-fit:cover;border-radius:var(--kr)}
 .kd-pdh{font-size:28px;font-weight:700;margin-bottom:10px;color:var(--kt)}
 .kd-pdp{font-size:32px;font-weight:700;color:var(--ka);margin-bottom:20px}
 .kd-pdd{color:var(--ktm);line-height:1.7;margin-bottom:20px;font-size:15px}

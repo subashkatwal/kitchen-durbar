@@ -18,7 +18,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <div className="kd-pcard" onClick={() => navigate(`/products/${product.id}`)}>
       <div className="kd-pimg">
-        <Icon name={product.icon} />
+        {product.image ? <img src={product.image} alt={product.name} /> : <Icon name={product.icon} />}
       </div>
       <div className="kd-pi">
         <div className="kd-pcat">{product.category}</div>

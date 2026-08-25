@@ -5,7 +5,13 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = 'Create a superuser from DJANGO_SUPERUSER_* env vars if one does not already exist.'
+    help = (
+        'Create the superuser from DJANGO_SUPERUSER_* env vars, or - if it already '
+        'exists - reset its password to match DJANGO_SUPERUSER_PASSWORD. Runs on every '
+        'container start (see entrypoint.sh), so the env var is always the source of '
+        "truth for the admin password: change it in Render's dashboard and redeploy "
+        "to reset a forgotten one, instead of needing to go dig up a generated value."
+    )
 
     def handle(self, *args, **options):
         email = os.environ.get('DJANGO_SUPERUSER_EMAIL')
@@ -17,9 +23,16 @@ class Command(BaseCommand):
             return
 
         User = get_user_model()
-        if User.objects.filter(email__iexact=email).exists():
-            self.stdout.write(f'Superuser {email} already exists - skipping.')
+        user = User.objects.filter(email__iexact=email).first()
+
+        if user is None:
+            User.objects.create_superuser(email=email, password=password, full_name=full_name)
+            self.stdout.write(self.style.SUCCESS(f'Created superuser {email}.'))
             return
 
-        User.objects.create_superuser(email=email, password=password, full_name=full_name)
-        self.stdout.write(self.style.SUCCESS(f'Created superuser {email}.'))
+        user.set_password(password)
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.save(update_fields=['password', 'is_staff', 'is_superuser', 'is_active'])
+        self.stdout.write(self.style.SUCCESS(f'Superuser {email} already existed - password reset to match DJANGO_SUPERUSER_PASSWORD.'))

@@ -14,6 +14,7 @@ export interface Product {
   icon: string
   price: string // DRF DecimalField -> serialized as a string
   description: string
+  image: string | null
   is_featured: boolean
   created_at: string
 }

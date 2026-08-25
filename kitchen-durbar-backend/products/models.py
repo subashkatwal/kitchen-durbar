@@ -35,6 +35,7 @@ class Product(models.Model):
     icon = models.CharField(max_length=20, blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2)
     description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -12,6 +12,8 @@ export default function AdminProducts() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Product | null>(null)
   const [form, setForm] = useState(emptyForm)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string>('')
   const [saving, setSaving] = useState(false)
 
   function load() {
@@ -29,13 +31,23 @@ export default function AdminProducts() {
   function openAdd() {
     setEditing(null)
     setForm(emptyForm)
+    setImageFile(null)
+    setImagePreview('')
     setModalOpen(true)
   }
 
   function openEdit(p: Product) {
     setEditing(p)
     setForm({ name: p.name, category: p.category, price: String(p.price), description: p.description, is_featured: p.is_featured })
+    setImageFile(null)
+    setImagePreview(p.image || '')
     setModalOpen(true)
+  }
+
+  function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] || null
+    setImageFile(file)
+    setImagePreview(file ? URL.createObjectURL(file) : editing?.image || '')
   }
 
   async function save() {
@@ -50,17 +62,30 @@ export default function AdminProducts() {
     }
     setSaving(true)
     try {
-      const payload = {
-        name: form.name.trim(),
-        category: form.category,
-        price: form.price,
-        description: form.description.trim(),
-        is_featured: form.is_featured,
+      // Only switch to multipart when a new image was actually picked - a
+      // plain JSON PATCH leaves the existing image untouched on edit.
+      let body: FormData | Record<string, unknown>
+      if (imageFile) {
+        body = new FormData()
+        body.append('name', form.name.trim())
+        body.append('category', form.category)
+        body.append('price', form.price)
+        body.append('description', form.description.trim())
+        body.append('is_featured', String(form.is_featured))
+        body.append('image', imageFile)
+      } else {
+        body = {
+          name: form.name.trim(),
+          category: form.category,
+          price: form.price,
+          description: form.description.trim(),
+          is_featured: form.is_featured,
+        }
       }
       if (editing) {
-        await api.patch(`/products/${editing.id}`, payload)
+        await api.patch(`/products/${editing.id}`, body)
       } else {
-        await api.post('/products', payload)
+        await api.post('/products', body)
       }
       setModalOpen(false)
       load()
@@ -95,6 +120,7 @@ export default function AdminProducts() {
         <table className="kd-tb2">
           <thead>
             <tr>
+              <th></th>
               <th>Product Name</th>
               <th>Category</th>
               <th>Price (NPR)</th>
@@ -105,6 +131,13 @@ export default function AdminProducts() {
           <tbody>
             {products.map((p) => (
               <tr key={p.id}>
+                <td>
+                  {p.image ? (
+                    <img src={p.image} alt={p.name} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 6 }} />
+                  ) : (
+                    <div style={{ width: 40, height: 40, borderRadius: 6, background: 'var(--kb)' }} />
+                  )}
+                </td>
                 <td style={{ fontWeight: 600 }}>{p.name}</td>
                 <td>
                   <span className="kd-bg kd-bgs">{p.category}</span>
@@ -157,6 +190,17 @@ export default function AdminProducts() {
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
+          </div>
+          <div className="kd-fg">
+            <label>Product Image</label>
+            <input type="file" accept="image/*" onChange={onPickImage} />
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                style={{ marginTop: 10, width: 120, height: 90, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--kbd)' }}
+              />
+            )}
           </div>
           <div className="kd-fg">
             <label className="kd-chk">

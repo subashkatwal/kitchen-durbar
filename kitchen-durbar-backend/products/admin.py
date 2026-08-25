@@ -10,3 +10,4 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ['name', 'description']
     list_editable = ['price', 'is_featured']
     readonly_fields = ['id', 'icon', 'created_at']
+    fields = ['name', 'category', 'price', 'description', 'image', 'is_featured', 'id', 'icon', 'created_at']

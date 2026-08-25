@@ -114,6 +114,13 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # frontend image.
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
+# User-uploaded files (product images). On Render this directory needs to sit
+# on the persistent disk mounted at /app/media (see render.yaml) - otherwise
+# uploads vanish on every redeploy, since the rest of the container's
+# filesystem is ephemeral.
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {

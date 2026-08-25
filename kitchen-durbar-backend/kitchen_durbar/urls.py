@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.views.static import serve
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -40,4 +42,10 @@ urlpatterns = [
     # API docs
     path('api/v1/schema', SpectacularAPIView.as_view(), name='schema'),
     path('api/v1/docs', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+
+    # Uploaded product images. Served by Django itself (not whitenoise - that's
+    # collectstatic-only) since there's no nginx in front of the backend
+    # container in either deploy target. Fine at this traffic volume; swap for
+    # whitenoise/S3/a CDN if that ever changes.
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
