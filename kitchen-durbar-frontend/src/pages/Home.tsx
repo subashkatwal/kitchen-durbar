@@ -10,9 +10,11 @@ export default function Home() {
   const [featured, setFeatured] = useState<Product[]>([])
 
   useEffect(() => {
+    // Featured products are chosen from the backend (Product.is_featured),
+    // not hardcoded here - toggle it per-product from the admin dashboard.
     api
-      .get<Product[]>('/products', { params: { ordering: '-created_at' } })
-      .then((res) => setFeatured(res.data.slice(0, 6)))
+      .get<Product[]>('/products', { params: { is_featured: true, ordering: '-created_at' } })
+      .then((res) => setFeatured(res.data))
       .catch(() => setFeatured([]))
   }, [])
 
@@ -50,17 +52,21 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <div className="kd-st">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
-          Featured Products
-        </div>
-        <div className="kd-pg2">
-          {featured.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
+        {featured.length > 0 && (
+          <>
+            <div className="kd-st">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+              Featured Products
+            </div>
+            <div className="kd-pg2">
+              {featured.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

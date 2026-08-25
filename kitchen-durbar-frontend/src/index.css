@@ -38,7 +38,7 @@ input,select{font-family:inherit;outline:none}
 .kd-btn-d:hover{background:var(--kal)}
 .kd-b{padding:48px 24px;max-width:1200px;margin:0 auto}
 .kd-st{font-size:22px;font-weight:700;margin-bottom:24px;color:var(--kt);display:flex;align-items:center;gap:8px}
-.kd-cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px;margin-bottom:40px}
+.kd-cg{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:40px}
 .kd-ccard{background:var(--kc);border:1px solid var(--kbd);border-radius:var(--kr);padding:24px 16px;text-align:center;cursor:pointer;transition:all 0.2s}
 .kd-ccard:hover{border-color:var(--ka);transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,0.1)}
 .kd-ccard svg{width:36px;height:36px;margin-bottom:10px;color:var(--ka)}
@@ -74,11 +74,17 @@ input,select{font-family:inherit;outline:none}
 .kd-fg label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--kt)}
 .kd-fg input{width:100%;padding:12px 14px;border:1.5px solid var(--kbd);border-radius:var(--kr);font-size:14px;background:var(--kc);color:var(--kt);transition:border-color 0.2s}
 .kd-fg input:focus{border-color:var(--ka)}
+.kd-chk{display:flex !important;align-items:center;gap:8px;cursor:pointer}
+.kd-chk input{width:auto !important;accent-color:var(--ka);cursor:pointer}
 .kd-abtn{width:100%;padding:13px;background:var(--ka);color:#fff;border:none;border-radius:var(--kr);font-size:15px;font-weight:700;cursor:pointer;transition:background 0.2s}
 .kd-abtn:hover{background:var(--kal)}
 .kd-abtn:disabled{opacity:0.6;cursor:not-allowed}
 .kd-as{text-align:center;margin-top:18px;font-size:14px;color:var(--ktm)}
 .kd-as a{color:var(--ka);cursor:pointer;font-weight:600}
+.kd-a-sub{text-align:center;font-size:13px;color:var(--ktm);line-height:1.6;margin:-14px 0 22px}
+.kd-otp-input{letter-spacing:10px;text-align:center;font-size:22px;font-weight:700}
+.kd-resend{background:none;border:none;padding:0;color:var(--ka);font-weight:600;font-size:14px;cursor:pointer}
+.kd-resend:disabled{color:var(--ktm);cursor:not-allowed}
 .kd-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--ktm);font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
 .kd-divider::before,.kd-divider::after{content:"";flex:1;height:1px;background:var(--kbd)}
 .kd-gsi{display:flex;justify-content:center}

@@ -14,6 +14,7 @@ export interface Product {
   icon: string
   price: string // DRF DecimalField -> serialized as a string
   description: string
+  is_featured: boolean
   created_at: string
 }
 
@@ -24,9 +25,12 @@ export interface User {
   phone: string
   is_staff: boolean
   is_active: boolean
+  is_verified: boolean
   role: 'admin' | 'user'
   date_joined: string
 }
+
+export type OTPPurpose = 'signup' | 'reset'
 
 export interface OrderItem {
   id: string

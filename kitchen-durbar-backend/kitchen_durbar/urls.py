@@ -3,13 +3,22 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from users.views import EmailTokenObtainPairView, GoogleLoginView, MeView, RegisterView
+from users.views import (
+    EmailTokenObtainPairView,
+    GoogleLoginView,
+    MeView,
+    PasswordResetConfirmView,
+    RegisterView,
+    RequestOTPView,
+    VerifyOTPView,
+)
 
 # All API routes live under /api/v1 with no trailing slash (e.g. /api/v1/login,
-# /api/v1/products/<id>). Django's own /admin/ site keeps its own conventions -
-# it isn't part of this API surface.
+# /api/v1/products/<id>). Django's own admin site keeps its own conventions and
+# lives at /django-admin/ (not /admin/) so it never collides with the React
+# app's own /admin dashboard route - see nginx.conf and vite.config.ts.
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('django-admin/', admin.site.urls),
 
     # Auth
     path('api/v1/register', RegisterView.as_view(), name='auth-register'),
@@ -17,6 +26,11 @@ urlpatterns = [
     path('api/v1/refresh', TokenRefreshView.as_view(), name='auth-refresh'),
     path('api/v1/google', GoogleLoginView.as_view(), name='auth-google'),
     path('api/v1/me', MeView.as_view(), name='auth-me'),
+
+    # Email OTP - signup verification and forgot-password
+    path('api/v1/otp/request', RequestOTPView.as_view(), name='otp-request'),
+    path('api/v1/otp/verify', VerifyOTPView.as_view(), name='otp-verify'),
+    path('api/v1/password-reset/confirm', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 
     # Users / Products / Orders (DRF routers, trailing_slash=False)
     path('api/v1/', include('users.urls')),

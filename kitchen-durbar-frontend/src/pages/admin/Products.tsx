@@ -4,7 +4,7 @@ import Select from '../../components/Select'
 import { useToast } from '../../context/ToastContext'
 import { CATEGORIES, type Category, type Product } from '../../types'
 
-const emptyForm = { name: '', category: 'Burner' as Category, price: '', description: '' }
+const emptyForm = { name: '', category: 'Burner' as Category, price: '', description: '', is_featured: false }
 
 export default function AdminProducts() {
   const toast = useToast()
@@ -15,7 +15,13 @@ export default function AdminProducts() {
   const [saving, setSaving] = useState(false)
 
   function load() {
-    api.get<Product[]>('/products').then((res) => setProducts(res.data)).catch(() => setProducts([]))
+    api
+      .get<Product[]>('/products')
+      .then((res) => setProducts(res.data))
+      .catch((err) => {
+        setProducts([])
+        toast(apiErrorMessage(err, 'Could not load products.'))
+      })
   }
 
   useEffect(load, [])
@@ -28,18 +34,29 @@ export default function AdminProducts() {
 
   function openEdit(p: Product) {
     setEditing(p)
-    setForm({ name: p.name, category: p.category, price: String(p.price), description: p.description })
+    setForm({ name: p.name, category: p.category, price: String(p.price), description: p.description, is_featured: p.is_featured })
     setModalOpen(true)
   }
 
   async function save() {
-    if (!form.name.trim() || !form.price) {
-      toast('Please fill required fields')
+    if (!form.name.trim()) {
+      toast('Please enter a product name')
+      return
+    }
+    const price = Number(form.price)
+    if (!form.price || Number.isNaN(price) || price <= 0) {
+      toast('Please enter a valid price greater than 0')
       return
     }
     setSaving(true)
     try {
-      const payload = { name: form.name.trim(), category: form.category, price: form.price, description: form.description.trim() }
+      const payload = {
+        name: form.name.trim(),
+        category: form.category,
+        price: form.price,
+        description: form.description.trim(),
+        is_featured: form.is_featured,
+      }
       if (editing) {
         await api.patch(`/products/${editing.id}`, payload)
       } else {
@@ -81,6 +98,7 @@ export default function AdminProducts() {
               <th>Product Name</th>
               <th>Category</th>
               <th>Price (NPR)</th>
+              <th>Featured</th>
               <th style={{ width: 140 }}>Actions</th>
             </tr>
           </thead>
@@ -92,6 +110,7 @@ export default function AdminProducts() {
                   <span className="kd-bg kd-bgs">{p.category}</span>
                 </td>
                 <td style={{ fontWeight: 700 }}>NPR {Number(p.price).toLocaleString()}</td>
+                <td>{p.is_featured && <span className="kd-bg kd-bgs">Featured</span>}</td>
                 <td>
                   <button className="kd-btn kd-btn-o" style={{ padding: '5px 12px', fontSize: 12 }} onClick={() => openEdit(p)}>
                     Edit
@@ -138,6 +157,16 @@ export default function AdminProducts() {
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
+          </div>
+          <div className="kd-fg">
+            <label className="kd-chk">
+              <input
+                type="checkbox"
+                checked={form.is_featured}
+                onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
+              />
+              Show in Featured Products on the homepage
+            </label>
           </div>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
             <button className="kd-btn kd-btn-o" style={{ padding: '10px 20px', fontSize: 14 }} onClick={() => setModalOpen(false)}>

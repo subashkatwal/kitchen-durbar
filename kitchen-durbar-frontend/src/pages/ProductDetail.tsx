@@ -1,6 +1,7 @@
+import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { api } from '../api/client'
+import { api, apiErrorMessage } from '../api/client'
 import { Icon } from '../components/icons'
 import { useCart } from '../context/CartContext'
 import { useToast } from '../context/ToastContext'
@@ -12,21 +13,25 @@ export default function ProductDetail() {
   const { addItem } = useCart()
   const toast = useToast()
   const [product, setProduct] = useState<Product | null>(null)
-  const [notFound, setNotFound] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (!id) return
+    setError('')
     api
       .get<Product>(`/products/${id}`)
       .then((res) => setProduct(res.data))
-      .catch(() => setNotFound(true))
+      .catch((err) => {
+        const status = axios.isAxiosError(err) ? err.response?.status : undefined
+        setError(status === 404 ? 'Product not found.' : apiErrorMessage(err, 'Could not load this product. Please try again.'))
+      })
   }, [id])
 
-  if (notFound) {
+  if (error) {
     return (
       <div className="kd-pg active">
         <div className="kd-em">
-          <p>Product not found.</p>
+          <p>{error}</p>
           <Link to="/products" className="kd-btn kd-btn-p" style={{ marginTop: 16, display: 'inline-flex' }}>
             Back to Products
           </Link>

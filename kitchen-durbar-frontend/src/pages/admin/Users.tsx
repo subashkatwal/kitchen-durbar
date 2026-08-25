@@ -11,7 +11,13 @@ export default function AdminUsers() {
   const [busyId, setBusyId] = useState<string | null>(null)
 
   function load() {
-    api.get<User[]>('/users').then((res) => setUsers(res.data)).catch(() => setUsers([]))
+    api
+      .get<User[]>('/users')
+      .then((res) => setUsers(res.data))
+      .catch((err) => {
+        setUsers([])
+        toast(apiErrorMessage(err, 'Could not load users.'))
+      })
   }
 
   useEffect(load, [])

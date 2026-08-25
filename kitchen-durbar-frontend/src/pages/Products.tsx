@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { api } from '../api/client'
+import { api, apiErrorMessage } from '../api/client'
 import ProductCard from '../components/ProductCard'
 import Select from '../components/Select'
 import { CATEGORIES, type Product } from '../types'
@@ -17,6 +17,7 @@ export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   const search = searchParams.get('search') || ''
   const category = searchParams.get('category') || ''
@@ -24,11 +25,15 @@ export default function Products() {
 
   useEffect(() => {
     setLoading(true)
+    setError('')
     const ordering = sort === 'pl' ? 'price' : sort === 'ph' ? '-price' : sort === 'nm' ? 'name' : undefined
     api
       .get<Product[]>('/products', { params: { search: search || undefined, category: category || undefined, ordering } })
       .then((res) => setProducts(res.data))
-      .catch(() => setProducts([]))
+      .catch((err) => {
+        setProducts([])
+        setError(apiErrorMessage(err, 'Could not load products. Please try again.'))
+      })
       .finally(() => setLoading(false))
   }, [search, category, sort])
 
@@ -59,7 +64,8 @@ export default function Products() {
           <Select value={category} onChange={(v) => update('category', v)} options={CATEGORY_OPTIONS} />
           <Select value={sort} onChange={(v) => update('sort', v)} options={SORT_OPTIONS} />
         </div>
-        {!loading && products.length === 0 ? (
+        {error && <div className="kd-err">{error}</div>}
+        {!loading && !error && products.length === 0 ? (
           <div className="kd-em">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />

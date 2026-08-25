@@ -19,13 +19,25 @@ export default function Register() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
+
+    const trimmedName = fullName.trim()
+    const trimmedEmail = email.trim()
+    if (!trimmedName || !trimmedEmail) {
+      setError('Please fill in your name and email.')
+      return
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.')
+      return
+    }
+
     setBusy(true)
     try {
-      await register({ full_name: fullName, email, phone, password })
-      toast('Account created! Please sign in.')
-      navigate('/login')
+      await register({ full_name: trimmedName, email: trimmedEmail, phone: phone.trim(), password })
+      toast('Account created! Check your email for a verification code.')
+      navigate(`/verify-otp?email=${encodeURIComponent(trimmedEmail)}&purpose=signup`)
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not create account'))
+      setError(apiErrorMessage(err, 'Could not create your account. Please try again.'))
     } finally {
       setBusy(false)
     }

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { apiErrorMessage } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
@@ -45,8 +46,8 @@ export default function GoogleButton() {
         await loginWithGoogle(res.credential)
         toast('Signed in with Google')
         navigate('/')
-      } catch {
-        toast('Google sign-in failed. Please try again.')
+      } catch (err) {
+        toast(apiErrorMessage(err, 'Google sign-in failed. Please try again.'))
       }
     }
 

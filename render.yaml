@@ -1,0 +1,101 @@
+# Render Blueprint - one-click deploy for Kitchen Durbar.
+#
+# How to use:
+#   1. Push this repo to GitHub (Render deploys from a git repo, not from
+#      your local folder).
+#   2. Render dashboard -> New -> Blueprint -> pick this repo. Render finds
+#      this file automatically and shows a preview of the 3 resources below.
+#   3. Click "Apply" - it builds the backend and frontend Docker images and
+#      provisions the database in one go.
+#   4. Fill in the secrets marked "sync: false" below under each service's
+#      Environment tab (Render prompts for these during Blueprint setup too).
+#
+# See the full walkthrough in the chat reply for what each secret is and any
+# manual steps left afterward (Google OAuth origins, superuser password, etc).
+
+databases:
+  - name: kitchen-durbar-db
+    databaseName: kitchendurbar
+    user: kitchendurbar
+    plan: free
+
+services:
+  - type: web
+    name: kitchen-durbar-backend
+    runtime: docker
+    dockerfilePath: ./kitchen-durbar-backend/Dockerfile
+    dockerContext: ./kitchen-durbar-backend
+    plan: free
+    healthCheckPath: /api/v1/docs
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: kitchen-durbar-backend.onrender.com
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://kitchen-durbar-frontend.onrender.com
+      - key: CORS_ALLOW_ALL_ORIGINS
+        value: "0"
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: kitchen-durbar-db
+          property: database
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: kitchen-durbar-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: kitchen-durbar-db
+          property: password
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: kitchen-durbar-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: kitchen-durbar-db
+          property: port
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: admin@kitchendurbar.com
+      - key: DJANGO_SUPERUSER_PASSWORD
+        generateValue: true
+      - key: DJANGO_SUPERUSER_NAME
+        value: Admin User
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.smtp.EmailBackend
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USE_TLS
+        value: "1"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: OTP_EXPIRY_MINUTES
+        value: "10"
+
+  - type: web
+    name: kitchen-durbar-frontend
+    runtime: docker
+    dockerfilePath: ./kitchen-durbar-frontend/Dockerfile
+    dockerContext: ./kitchen-durbar-frontend
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: VITE_API_URL
+        value: https://kitchen-durbar-backend.onrender.com/api/v1
+      - key: VITE_WHATSAPP_NUMBER
+        value: "+9779769400796"
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false

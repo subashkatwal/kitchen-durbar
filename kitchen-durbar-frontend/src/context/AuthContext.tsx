@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { api, clearTokens, getAccessToken, setTokens } from '../api/client'
-import type { User } from '../types'
+import type { OTPPurpose, User } from '../types'
 
 interface RegisterPayload {
   full_name: string
@@ -15,6 +15,10 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>
   loginWithGoogle: (credential: string) => Promise<void>
   register: (payload: RegisterPayload) => Promise<void>
+  requestOtp: (email: string, purpose: OTPPurpose) => Promise<void>
+  verifySignupOtp: (email: string, code: string) => Promise<void>
+  verifyResetOtp: (email: string, code: string) => Promise<void>
+  resetPassword: (email: string, code: string, newPassword: string) => Promise<void>
   logout: () => void
 }
 
@@ -53,7 +57,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function register(payload: RegisterPayload) {
     // Create the account only - do NOT authenticate here. The user is only
     // considered signed in after an explicit login (see login() above).
+    // Registering also emails a signup-verification OTP server-side.
     await api.post('/register', payload)
+  }
+
+  async function requestOtp(email: string, purpose: OTPPurpose) {
+    await api.post('/otp/request', { email, purpose })
+  }
+
+  async function verifySignupOtp(email: string, code: string) {
+    // Signup OTPs authenticate on success, same shape as login().
+    const { data } = await api.post('/otp/verify', { email, code, purpose: 'signup' })
+    setTokens(data.access, data.refresh)
+    setUser(data.user)
+  }
+
+  async function verifyResetOtp(email: string, code: string) {
+    // Reset OTPs only get checked here (not consumed) so the forgot-password
+    // page can validate the code before asking for a new password.
+    await api.post('/otp/verify', { email, code, purpose: 'reset' })
+  }
+
+  async function resetPassword(email: string, code: string, newPassword: string) {
+    await api.post('/password-reset/confirm', { email, code, new_password: newPassword })
   }
 
   function logout() {
@@ -62,7 +88,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, loginWithGoogle, register, requestOtp, verifySignupOtp, verifyResetOtp, resetPassword, logout }}
+    >
       {children}
     </AuthContext.Provider>
   )

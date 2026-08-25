@@ -71,17 +71,36 @@ api.interceptors.response.use(
   },
 )
 
-export function apiErrorMessage(err: unknown, fallback = 'Something went wrong.'): string {
+export function apiErrorMessage(err: unknown, fallback = 'Something went wrong. Please try again.'): string {
   if (axios.isAxiosError(err)) {
-    const data = err.response?.data
-    if (typeof data === 'string') return data
+    // No response at all: the request never reached the server (offline,
+    // DNS failure, backend down, CORS, etc.) - distinct from a handled
+    // error response, and worth telling the user about explicitly.
+    if (!err.response) {
+      return err.code === 'ECONNABORTED'
+        ? 'The request timed out. Please try again.'
+        : 'Network error. Please check your connection and try again.'
+    }
+
+    const status = err.response.status
+    const data = err.response.data
+
+    if (typeof data === 'string' && data.trim()) return data
+
     if (data && typeof data === 'object') {
       const firstKey = Object.keys(data)[0]
       const value = (data as Record<string, unknown>)[firstKey]
-      if (Array.isArray(value)) return String(value[0])
-      if (typeof value === 'string') return value
-      if (data.detail) return String(data.detail)
+      if (Array.isArray(value) && value.length) return String(value[0])
+      if (typeof value === 'string' && value) return value
+      const detail = (data as Record<string, unknown>).detail
+      if (typeof detail === 'string' && detail) return detail
     }
+
+    if (status === 401) return 'Your session has expired. Please sign in again.'
+    if (status === 403) return "You don't have permission to do that."
+    if (status === 404) return 'Not found.'
+    if (status === 429) return 'Too many requests. Please wait a moment and try again.'
+    if (status >= 500) return "Something went wrong on our end. Please try again in a moment."
   }
   return fallback
 }

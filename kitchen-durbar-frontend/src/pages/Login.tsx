@@ -17,13 +17,20 @@ export default function Login() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
+
+    const trimmedEmail = email.trim()
+    if (!trimmedEmail || !password) {
+      setError('Please enter your email and password.')
+      return
+    }
+
     setBusy(true)
     try {
-      await login(email, password)
+      await login(trimmedEmail, password)
       toast('Welcome back!')
       navigate('/')
     } catch (err) {
-      setError(apiErrorMessage(err, 'Invalid email or password'))
+      setError(apiErrorMessage(err, 'Incorrect email or password. Please try again.'))
     } finally {
       setBusy(false)
     }
@@ -47,6 +54,9 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+        </div>
+        <div className="kd-as" style={{ marginTop: -8, marginBottom: 18, textAlign: 'right' }}>
+          <Link to="/forgot-password">Forgot password?</Link>
         </div>
         <button className="kd-abtn" type="submit" disabled={busy}>
           {busy ? 'Signing In...' : 'Sign In'}

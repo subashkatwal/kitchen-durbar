@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
 from rest_framework import generics, mixins, permissions, status, viewsets
@@ -7,15 +10,22 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from .emails import send_otp_email
+from .models import OTP
 from .serializers import (
     EmailTokenObtainPairSerializer,
     GoogleLoginSerializer,
+    OTPRequestSerializer,
+    OTPVerifySerializer,
+    PasswordResetConfirmSerializer,
     RegisterSerializer,
     UserAdminUpdateSerializer,
     UserSerializer,
 )
 
 User = get_user_model()
+
+OTP_RESEND_COOLDOWN_SECONDS = 60
 
 
 class RegisterView(generics.CreateAPIView):
@@ -25,6 +35,9 @@ class RegisterView(generics.CreateAPIView):
     Deliberately does NOT issue JWTs here: registering only creates the user,
     it does not authenticate them. The client must call /api/v1/login
     afterwards, same as any other credential check.
+
+    Also fires off a signup-verification OTP so the frontend can send the
+    user straight to the OTP page after a successful registration.
     """
 
     queryset = User.objects.all()
@@ -35,6 +48,8 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        otp = OTP.objects.create(email=user.email, purpose=OTP.Purpose.SIGNUP)
+        send_otp_email(user.email, otp.code, OTP.Purpose.SIGNUP)
         return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
 
@@ -85,10 +100,16 @@ class GoogleLoginView(generics.GenericAPIView):
             full_name = idinfo.get('name') or email.split('@')[0]
             # No usable password: this account can only sign in via Google
             # unless the user later sets one through a password-reset flow.
-            user = User.objects.create_user(email=email, full_name=full_name, password=None)
+            user = User.objects.create_user(email=email, full_name=full_name, password=None, is_verified=True)
 
         if not user.is_active:
             return Response({'detail': 'This account has been deactivated.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Google already verified this address, whether the account is new or
+        # was previously created (and unverified) via email/password signup.
+        if not user.is_verified:
+            user.is_verified = True
+            user.save(update_fields=['is_verified'])
 
         refresh = RefreshToken.for_user(user)
         return Response(
@@ -108,6 +129,137 @@ class MeView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class RequestOTPView(generics.GenericAPIView):
+    """
+    POST /api/v1/otp/request {email, purpose: "signup"|"reset"} - emails a
+    fresh one-time code. Also used to resend a code.
+
+    "signup": the account must exist and not already be verified.
+    "reset": always returns the same generic response whether or not the
+      account exists, so this endpoint can't be used to enumerate emails.
+    """
+
+    serializer_class = OTPRequestSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email'].strip().lower()
+        purpose = serializer.validated_data['purpose']
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            user = None
+
+        if purpose == OTP.Purpose.SIGNUP:
+            if user is None:
+                return Response({'detail': 'No account found for this email.'}, status=status.HTTP_400_BAD_REQUEST)
+            if user.is_verified:
+                return Response({'detail': 'This account is already verified.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        generic_response = Response({'detail': 'If an account exists for this email, a code has been sent.'})
+
+        if purpose == OTP.Purpose.RESET and user is None:
+            # Don't reveal whether the address is registered.
+            return generic_response
+
+        recently_sent = OTP.objects.filter(
+            email__iexact=email,
+            purpose=purpose,
+            created_at__gte=timezone.now() - timedelta(seconds=OTP_RESEND_COOLDOWN_SECONDS),
+        ).exists()
+        if recently_sent:
+            return Response(
+                {'detail': 'Please wait a moment before requesting another code.'},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
+        otp = OTP.objects.create(email=email, purpose=purpose)
+        send_otp_email(email, otp.code, purpose)
+
+        return generic_response if purpose == OTP.Purpose.RESET else Response({'detail': 'Verification code sent.'})
+
+
+class VerifyOTPView(generics.GenericAPIView):
+    """
+    POST /api/v1/otp/verify {email, code, purpose} - check a one-time code.
+
+    "signup": consumes the code, marks the account verified, and logs the
+      user in (same response shape as /api/v1/login).
+    "reset": only checks validity here - the code isn't spent until
+      /api/v1/password-reset/confirm is called with it, so the OTP page can
+      let the user re-check the code before committing to a new password.
+    """
+
+    serializer_class = OTPVerifySerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email'].strip().lower()
+        code = serializer.validated_data['code']
+        purpose = serializer.validated_data['purpose']
+
+        otp = OTP.objects.filter(email__iexact=email, purpose=purpose, code=code).first()
+        if not otp or not otp.is_valid():
+            return Response({'detail': 'Invalid or expired code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if purpose == OTP.Purpose.RESET:
+            return Response({'detail': 'Code verified.'})
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({'detail': 'No account found for this email.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp.is_used = True
+        otp.save(update_fields=['is_used'])
+        user.is_verified = True
+        user.save(update_fields=['is_verified'])
+
+        refresh = RefreshToken.for_user(user)
+        return Response(
+            {
+                'user': UserSerializer(user).data,
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            }
+        )
+
+
+class PasswordResetConfirmView(generics.GenericAPIView):
+    """POST /api/v1/password-reset/confirm {email, code, new_password} - spend a "reset" code to set a new password."""
+
+    serializer_class = PasswordResetConfirmSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email'].strip().lower()
+        code = serializer.validated_data['code']
+        new_password = serializer.validated_data['new_password']
+
+        otp = OTP.objects.filter(email__iexact=email, purpose=OTP.Purpose.RESET, code=code).first()
+        if not otp or not otp.is_valid():
+            return Response({'detail': 'Invalid or expired code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({'detail': 'Invalid or expired code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save(update_fields=['password'])
+        otp.is_used = True
+        otp.save(update_fields=['is_used'])
+
+        return Response({'detail': 'Password updated. You can now log in.'})
 
 
 class UserViewSet(

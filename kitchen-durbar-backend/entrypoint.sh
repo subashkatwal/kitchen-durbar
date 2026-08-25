@@ -12,7 +12,9 @@ echo "Database is up."
 
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput --clear
-python manage.py seed_products
+# Static placeholder catalog seeding is off for now - add real products via
+# the admin dashboard. Run `python manage.py seed_products` manually if you
+# want the sample catalog back.
 python manage.py createsuperuser_if_missing
 
 exec "$@"

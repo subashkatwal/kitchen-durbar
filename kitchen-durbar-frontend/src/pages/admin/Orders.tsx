@@ -8,7 +8,13 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([])
 
   function load() {
-    api.get<Order[]>('/orders').then((res) => setOrders(res.data)).catch(() => setOrders([]))
+    api
+      .get<Order[]>('/orders')
+      .then((res) => setOrders(res.data))
+      .catch((err) => {
+        setOrders([])
+        toast(apiErrorMessage(err, 'Could not load orders.'))
+      })
   }
 
   useEffect(load, [])
