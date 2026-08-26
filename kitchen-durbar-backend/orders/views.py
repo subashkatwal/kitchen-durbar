@@ -10,12 +10,14 @@ class OrderViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     """
     list: own orders for a normal user, all orders for staff
     create: place an order from the current cart (IsAuthenticated)
     partial_update: staff-only status change
+    destroy: staff-only order deletion
     """
 
     permission_classes = [permissions.IsAuthenticated]
@@ -45,3 +47,8 @@ class OrderViewSet(
     def update(self, request, *args, **kwargs):
         # Only partial status updates are supported.
         return self.partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response({'detail': 'Only staff can delete orders.'}, status=403)
+        return super().destroy(request, *args, **kwargs)

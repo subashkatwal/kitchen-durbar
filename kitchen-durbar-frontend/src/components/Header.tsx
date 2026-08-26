@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
+import ConfirmDialog from './ConfirmDialog'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useToast } from '../context/ToastContext'
@@ -12,14 +13,15 @@ export default function Header() {
   const location = useLocation()
   const toast = useToast()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [logoutOpen, setLogoutOpen] = useState(false)
 
   // Close the mobile menu whenever the route changes.
   useEffect(() => {
     setMenuOpen(false)
   }, [location.pathname])
 
-  function handleLogout() {
-    if (!confirm('Are you sure you want to log out?')) return
+  function confirmLogout() {
+    setLogoutOpen(false)
     logout()
     toast('Logged out successfully')
     navigate('/')
@@ -39,7 +41,7 @@ export default function Header() {
           </NavLink>
           <NavLink to="/products">Products</NavLink>
           {user?.is_staff && <NavLink to="/admin">Admin</NavLink>}
-          {user ? <a onClick={handleLogout}>Logout</a> : <NavLink to="/login">Login</NavLink>}
+          {user ? <a onClick={() => setLogoutOpen(true)}>Logout</a> : <NavLink to="/login">Login</NavLink>}
         </nav>
 
         <button className="kd-cb" onClick={() => navigate('/cart')}>
@@ -72,6 +74,16 @@ export default function Header() {
       </div>
 
       {menuOpen && <div className="kd-n-backdrop" onClick={() => setMenuOpen(false)} />}
+
+      <ConfirmDialog
+        open={logoutOpen}
+        title="Log out"
+        message="Are you sure you want to log out?"
+        confirmLabel="Log out"
+        cancelLabel="Cancel"
+        onConfirm={confirmLogout}
+        onCancel={() => setLogoutOpen(false)}
+      />
     </div>
   )
 }

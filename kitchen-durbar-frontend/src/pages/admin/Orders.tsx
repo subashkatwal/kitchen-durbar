@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { api, apiErrorMessage } from '../../api/client'
+import ConfirmDialog from '../../components/ConfirmDialog'
 import { useToast } from '../../context/ToastContext'
 import { ORDER_STATUSES, type Order, type OrderStatus } from '../../types'
 
 export default function AdminOrders() {
   const toast = useToast()
   const [orders, setOrders] = useState<Order[]>([])
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   function load() {
     api
@@ -29,6 +31,19 @@ export default function AdminOrders() {
     }
   }
 
+  async function remove() {
+    if (!deleteId) return
+    try {
+      await api.delete(`/orders/${deleteId}`)
+      setOrders((prev) => prev.filter((o) => o.id !== deleteId))
+      toast('Order deleted')
+    } catch (err) {
+      toast(apiErrorMessage(err, 'Could not delete order'))
+    } finally {
+      setDeleteId(null)
+    }
+  }
+
   return (
     <div>
       <h2 style={{ marginBottom: 20, fontSize: 22, fontWeight: 700 }}>Order Management</h2>
@@ -42,12 +57,13 @@ export default function AdminOrders() {
               <th>Total</th>
               <th>Status</th>
               <th>Date</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {orders.length === 0 && (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', color: 'var(--ktm)', padding: 20 }}>
+                <td colSpan={7} style={{ textAlign: 'center', color: 'var(--ktm)', padding: 20 }}>
                   No orders yet
                 </td>
               </tr>
@@ -68,11 +84,25 @@ export default function AdminOrders() {
                   </select>
                 </td>
                 <td>{new Date(o.created_at).toLocaleDateString()}</td>
+                <td>
+                  <button className="kd-btn kd-btn-d" style={{ padding: '5px 12px', fontSize: 12 }} onClick={() => setDeleteId(o.id)}>
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        title="Delete order"
+        message="Are you sure you want to delete this order? This cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={remove}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   )
 }

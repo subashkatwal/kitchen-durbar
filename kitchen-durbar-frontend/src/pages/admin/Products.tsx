@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, apiErrorMessage } from '../../api/client'
+import ConfirmDialog from '../../components/ConfirmDialog'
 import Select from '../../components/Select'
 import { useToast } from '../../context/ToastContext'
 import { CATEGORIES, type Category, type Product } from '../../types'
@@ -15,6 +16,7 @@ export default function AdminProducts() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>('')
   const [saving, setSaving] = useState(false)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   function load() {
     api
@@ -97,14 +99,16 @@ export default function AdminProducts() {
     }
   }
 
-  async function remove(id: string) {
-    if (!confirm('Delete this product?')) return
+  async function remove() {
+    if (!deleteId) return
     try {
-      await api.delete(`/products/${id}`)
+      await api.delete(`/products/${deleteId}`)
       load()
       toast('Product deleted')
     } catch (err) {
       toast(apiErrorMessage(err, 'Could not delete product'))
+    } finally {
+      setDeleteId(null)
     }
   }
 
@@ -148,7 +152,7 @@ export default function AdminProducts() {
                   <button className="kd-btn kd-btn-o" style={{ padding: '5px 12px', fontSize: 12 }} onClick={() => openEdit(p)}>
                     Edit
                   </button>{' '}
-                  <button className="kd-btn kd-btn-d" style={{ padding: '5px 12px', fontSize: 12 }} onClick={() => remove(p.id)}>
+                  <button className="kd-btn kd-btn-d" style={{ padding: '5px 12px', fontSize: 12 }} onClick={() => setDeleteId(p.id)}>
                     Delete
                   </button>
                 </td>
@@ -222,6 +226,15 @@ export default function AdminProducts() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        title="Delete product"
+        message="Are you sure you want to delete this product? This cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={remove}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   )
 }
