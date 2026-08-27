@@ -92,3 +92,5 @@ curl http://localhost:8000/api/v1/products      # seeded catalog
 Then in the browser: register → check the backend logs for the OTP code (or a real inbox once `EMAIL_*` is
 configured) → verify → login → browse/search/filter products → add to cart → checkout →
 confirm the order shows up under the admin Orders tab (and in `/django-admin/`) for a staff account.
+Visit the live site below: 
+[Kitchen Durbar ](https://kitchen-durbar-frontend.onrender.com/)
