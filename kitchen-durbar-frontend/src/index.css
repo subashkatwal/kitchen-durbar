@@ -164,12 +164,17 @@ input,select{font-family:inherit;outline:none}
    tallest sibling, leaving an ugly blank gap under the shorter ones. */
 .kd-promo-banner-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
 .kd-promo-banner-carousel{display:none}
-.kd-promo-banner-item{display:block;border-radius:10px;overflow:hidden;border:1px solid var(--kbd);background:var(--kc);box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:transform 0.2s ease,box-shadow 0.2s ease}
+.kd-promo-banner-item{display:flex;align-items:center;justify-content:center;border-radius:10px;overflow:hidden;border:1px solid var(--kbd);background:var(--kc);box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:transform 0.2s ease,box-shadow 0.2s ease}
 .kd-promo-banner-item:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.1)}
 .kd-promo-banner-item.span-2{grid-column:span 2}
 /* No object-fit/aspect-ratio here on purpose - the image's own natural
    dimensions are what render, so nothing is ever cropped or stretched. */
-.kd-promo-banner-item img{width:100%;height:auto;display:block}
+/* Bounding box, not object-fit:cover - the image scales down to fit within
+   this box on whichever axis is tighter, keeping its own aspect ratio
+   exactly (no cropping/distortion), instead of stretching to 100% of a
+   1200px-wide desktop column and ballooning to whatever height that
+   implies for a naturally tall/square source photo. */
+.kd-promo-banner-item img{width:auto;height:auto;max-width:100%;max-height:220px;display:block}
 .kd-pd{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:1000px;margin:40px auto;background:var(--kc);border:1px solid var(--kbd);border-radius:12px;padding:40px;box-shadow:var(--ksh)}
 .kd-pdi{background:linear-gradient(135deg,#f1f3f5,#e9ecef);border-radius:var(--kr);height:380px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .kd-pdi svg{width:120px;height:120px;color:var(--ktm);opacity:0.4}
