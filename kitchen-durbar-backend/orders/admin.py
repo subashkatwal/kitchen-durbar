@@ -16,4 +16,4 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ['id', 'user__email', 'user__full_name']
     list_editable = ['status']
     inlines = [OrderItemInline]
-    readonly_fields = ['id', 'user', 'subtotal', 'shipping', 'total', 'created_at']
+    readonly_fields = ['id', 'user', 'subtotal', 'discount', 'shipping', 'total', 'created_at']

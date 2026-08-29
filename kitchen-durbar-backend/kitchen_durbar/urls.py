@@ -34,18 +34,24 @@ urlpatterns = [
     path('api/v1/otp/verify', VerifyOTPView.as_view(), name='otp-verify'),
     path('api/v1/password-reset/confirm', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 
-    # Users / Products / Orders (DRF routers, trailing_slash=False)
+    # Users / Products / Orders / Ads (DRF routers, trailing_slash=False)
     path('api/v1/', include('users.urls')),
     path('api/v1/', include('products.urls')),
     path('api/v1/', include('orders.urls')),
+    path('api/v1/', include('ads.urls')),
 
     # API docs
     path('api/v1/schema', SpectacularAPIView.as_view(), name='schema'),
     path('api/v1/docs', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 
-    # Uploaded product images. Served by Django itself (not whitenoise - that's
-    # collectstatic-only) since there's no nginx in front of the backend
-    # container in either deploy target. Fine at this traffic volume; swap for
-    # whitenoise/S3/a CDN if that ever changes.
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
+
+if not settings.USE_CLOUDINARY_MEDIA:
+    # Local-disk fallback only (dev / Cloudinary not configured). Served by
+    # Django itself (not whitenoise - that's collectstatic-only) since
+    # there's no nginx in front of the backend container in either deploy
+    # target. When USE_CLOUDINARY_MEDIA is on, ImageField.url already points
+    # straight at Cloudinary, so this route is unused in that case.
+    urlpatterns.append(
+        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    )

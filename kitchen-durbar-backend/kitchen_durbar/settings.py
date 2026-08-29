@@ -36,7 +36,11 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+
+    # Must load before django.contrib.staticfiles per django-cloudinary-storage's docs.
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
 
     'rest_framework',
     'rest_framework_simplejwt',
@@ -47,6 +51,7 @@ INSTALLED_APPS = [
     'users',
     'products',
     'orders',
+    'ads',
 ]
 
 MIDDLEWARE = [
@@ -109,17 +114,59 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-# Serves collected static files (django-admin CSS/JS) straight from gunicorn -
-# there's no nginx in front of the backend container on Render, unlike the
-# frontend image.
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-# User-uploaded files (product images). On Render this directory needs to sit
-# on the persistent disk mounted at /app/media (see render.yaml) - otherwise
-# uploads vanish on every redeploy, since the rest of the container's
-# filesystem is ephemeral.
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# --- Media storage (user-uploaded product images) ---
+# Local disk (MEDIA_ROOT) is ephemeral on Render - wiped on every redeploy or
+# restart - so uploads go to Cloudinary instead whenever it's configured
+# (free tier is generous enough for this project). Leave CLOUDINARY_CLOUD_NAME
+# blank to fall back to local disk, which is what docker-compose / local dev
+# does by default. Get these three values from the Cloudinary dashboard
+# (cloudinary.com/console) after creating a free account - they're shown
+# together right on the dashboard home page.
+CLOUDINARY_CLOUD_NAME = env('CLOUDINARY_CLOUD_NAME', default='')
+CLOUDINARY_API_KEY = env('CLOUDINARY_API_KEY', default='')
+CLOUDINARY_API_SECRET = env('CLOUDINARY_API_SECRET', default='')
+
+USE_CLOUDINARY_MEDIA = bool(CLOUDINARY_CLOUD_NAME)
+
+if USE_CLOUDINARY_MEDIA:
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
+        'API_KEY': CLOUDINARY_API_KEY,
+        'API_SECRET': CLOUDINARY_API_SECRET,
+    }
+
+STORAGES = {
+    'default': {
+        'BACKEND': (
+            'cloudinary_storage.storage.MediaCloudinaryStorage' if USE_CLOUDINARY_MEDIA
+            else 'django.core.files.storage.FileSystemStorage'
+        ),
+    },
+    # Serves collected static files (django-admin CSS/JS) straight from
+    # gunicorn - there's no nginx in front of the backend container on
+    # Render, unlike the frontend image. Static files stay on local disk
+    # regardless of media storage - they ship with the image on every
+    # deploy, so there's nothing ephemeral about them.
+    #
+    # Compression is skipped in DEBUG (local dev): docker-compose.override.yml
+    # bind-mounts the whole backend dir from the host, and whitenoise's
+    # compressor runs collectstatic's post-processing across a thread pool -
+    # under a Windows bind mount's I/O latency that races with file writes and
+    # throws spurious FileNotFoundErrors. Not a concern in prod (no bind
+    # mount there), and compression only matters once something's actually
+    # serving compressed assets to real traffic.
+    'staticfiles': {
+        'BACKEND': (
+            'django.contrib.staticfiles.storage.StaticFilesStorage' if DEBUG
+            else 'whitenoise.storage.CompressedStaticFilesStorage'
+        ),
+    },
+}
+
+MEDIA_URL = 'media/'  # unused when USE_CLOUDINARY_MEDIA - Cloudinary URLs are built directly from ImageField.url
+if not USE_CLOUDINARY_MEDIA:
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

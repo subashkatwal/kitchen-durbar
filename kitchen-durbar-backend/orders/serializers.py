@@ -4,7 +4,8 @@ from rest_framework import serializers
 
 from products.models import Product
 
-from .models import FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, Order, OrderItem
+from .models import Order, OrderItem
+from .pricing import calculate_discount_and_shipping
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -23,9 +24,9 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             'id', 'user', 'user_email', 'user_name',
-            'subtotal', 'shipping', 'total', 'status', 'created_at', 'items',
+            'subtotal', 'discount', 'shipping', 'total', 'status', 'created_at', 'items',
         ]
-        read_only_fields = ['id', 'user', 'subtotal', 'shipping', 'total', 'status', 'created_at']
+        read_only_fields = ['id', 'user', 'subtotal', 'discount', 'shipping', 'total', 'status', 'created_at']
 
 
 class OrderCreateItemSerializer(serializers.Serializer):
@@ -61,12 +62,13 @@ class OrderCreateSerializer(serializers.Serializer):
             subtotal += product.price * qty
             line_items.append((product, qty))
 
-        shipping = Decimal('0') if subtotal > FREE_SHIPPING_THRESHOLD else SHIPPING_FEE
-        total = subtotal + shipping
+        discount, shipping = calculate_discount_and_shipping(subtotal)
+        total = subtotal - discount + shipping
 
         order = Order.objects.create(
             user=request.user,
             subtotal=subtotal,
+            discount=discount,
             shipping=shipping,
             total=total,
         )
