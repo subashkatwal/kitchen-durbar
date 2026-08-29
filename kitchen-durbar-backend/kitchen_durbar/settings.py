@@ -1,3 +1,4 @@
+
 """
 Django settings for the Kitchen Durbar backend.
 """
@@ -12,23 +13,31 @@ env = environ.Env()
 
 SECRET_KEY = env('DJANGO_SECRET_KEY', default='django-insecure-change-me-in-.env')
 DEBUG = env.bool('DJANGO_DEBUG', default=False)
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+ALLOWED_HOSTS = env.list(
+    'DJANGO_ALLOWED_HOSTS',
+    default=['localhost', '127.0.0.1']
+)
 
-# Render injects RENDER_EXTERNAL_HOSTNAME into every service automatically -
-# trust it without needing DJANGO_ALLOWED_HOSTS to know the exact hostname
-# Render assigned (it can differ from what render.yaml requested if that name
-# was already taken).
+# Render injects RENDER_EXTERNAL_HOSTNAME into every service automatically.
 RENDER_EXTERNAL_HOSTNAME = env('RENDER_EXTERNAL_HOSTNAME', default='')
+
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# Render terminates TLS at its edge and forwards plain HTTP internally, so
-# Django needs to trust X-Forwarded-Proto to know a request was actually
-# HTTPS (affects CSRF/cookie security checks - matters for /django-admin/).
+# Render terminates TLS at its edge and forwards plain HTTP internally.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+
 if RENDER_EXTERNAL_HOSTNAME:
-    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+    CSRF_TRUSTED_ORIGINS.append(
+        f'https://{RENDER_EXTERNAL_HOSTNAME}'
+    )
+
+
+# ---------------------------------------------------------------------------
+# Applications
+# ---------------------------------------------------------------------------
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -37,7 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
 
-    # Must load before django.contrib.staticfiles per django-cloudinary-storage's docs.
+    # Must load before django.contrib.staticfiles per
+    # django-cloudinary-storage documentation.
     'cloudinary_storage',
     'django.contrib.staticfiles',
     'cloudinary',
@@ -54,6 +64,11 @@ INSTALLED_APPS = [
     'ads',
 ]
 
+
+# ---------------------------------------------------------------------------
+# Middleware
+# ---------------------------------------------------------------------------
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -65,6 +80,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+# ---------------------------------------------------------------------------
+# Django
+# ---------------------------------------------------------------------------
 
 ROOT_URLCONF = 'kitchen_durbar.urls'
 
@@ -87,6 +107,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'kitchen_durbar.wsgi.application'
 ASGI_APPLICATION = 'kitchen_durbar.asgi.application'
 
+
+# ---------------------------------------------------------------------------
+# Database
+# ---------------------------------------------------------------------------
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -98,34 +123,82 @@ DATABASES = {
     }
 }
 
+
+# ---------------------------------------------------------------------------
+# Authentication
+# ---------------------------------------------------------------------------
+
 AUTH_USER_MODEL = 'users.User'
 
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 6}},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'UserAttributeSimilarityValidator'
+        )
+    },
+    {
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'MinimumLengthValidator'
+        ),
+        'OPTIONS': {
+            'min_length': 6
+        }
+    },
+    {
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'CommonPasswordValidator'
+        )
+    },
+    {
+        'NAME': (
+            'django.contrib.auth.password_validation.'
+            'NumericPasswordValidator'
+        )
+    },
 ]
 
+
+# ---------------------------------------------------------------------------
+# Internationalization
+# ---------------------------------------------------------------------------
+
 LANGUAGE_CODE = 'en-us'
+
 TIME_ZONE = 'Asia/Kathmandu'
+
 USE_I18N = True
 USE_TZ = True
+
+
+# ---------------------------------------------------------------------------
+# Static files
+# ---------------------------------------------------------------------------
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# --- Media storage (user-uploaded product images) ---
-# Local disk (MEDIA_ROOT) is ephemeral on Render - wiped on every redeploy or
-# restart - so uploads go to Cloudinary instead whenever it's configured
-# (free tier is generous enough for this project). Leave CLOUDINARY_CLOUD_NAME
-# blank to fall back to local disk, which is what docker-compose / local dev
-# does by default. Get these three values from the Cloudinary dashboard
-# (cloudinary.com/console) after creating a free account - they're shown
-# together right on the dashboard home page.
-CLOUDINARY_CLOUD_NAME = env('CLOUDINARY_CLOUD_NAME', default='')
-CLOUDINARY_API_KEY = env('CLOUDINARY_API_KEY', default='')
-CLOUDINARY_API_SECRET = env('CLOUDINARY_API_SECRET', default='')
+
+# ---------------------------------------------------------------------------
+# Media storage
+# ---------------------------------------------------------------------------
+
+CLOUDINARY_CLOUD_NAME = env(
+    'CLOUDINARY_CLOUD_NAME',
+    default=''
+)
+
+CLOUDINARY_API_KEY = env(
+    'CLOUDINARY_API_KEY',
+    default=''
+)
+
+CLOUDINARY_API_SECRET = env(
+    'CLOUDINARY_API_SECRET',
+    default=''
+)
 
 USE_CLOUDINARY_MEDIA = bool(CLOUDINARY_CLOUD_NAME)
 
@@ -136,54 +209,79 @@ if USE_CLOUDINARY_MEDIA:
         'API_SECRET': CLOUDINARY_API_SECRET,
     }
 
+
+# ---------------------------------------------------------------------------
+# Storage
+# ---------------------------------------------------------------------------
+
 STORAGES = {
     'default': {
         'BACKEND': (
-            'cloudinary_storage.storage.MediaCloudinaryStorage' if USE_CLOUDINARY_MEDIA
+            'cloudinary_storage.storage.MediaCloudinaryStorage'
+            if USE_CLOUDINARY_MEDIA
             else 'django.core.files.storage.FileSystemStorage'
         ),
     },
-    # Serves collected static files (django-admin CSS/JS) straight from
-    # gunicorn - there's no nginx in front of the backend container on
-    # Render, unlike the frontend image. Static files stay on local disk
-    # regardless of media storage - they ship with the image on every
-    # deploy, so there's nothing ephemeral about them.
+
+    # Development:
+    #   Normal Django static file storage.
     #
-    # Compression is skipped in DEBUG (local dev): docker-compose.override.yml
-    # bind-mounts the whole backend dir from the host, and whitenoise's
-    # compressor runs collectstatic's post-processing across a thread pool -
-    # under a Windows bind mount's I/O latency that races with file writes and
-    # throws spurious FileNotFoundErrors. Not a concern in prod (no bind
-    # mount there), and compression only matters once something's actually
-    # serving compressed assets to real traffic.
+    # Production:
+    #   WhiteNoise compressed + manifest storage.
+    #
+    # The manifest allows Django/WhiteNoise to keep track of processed
+    # static files and their hashed filenames.
     'staticfiles': {
         'BACKEND': (
-            'django.contrib.staticfiles.storage.StaticFilesStorage' if DEBUG
-            else 'whitenoise.storage.CompressedStaticFilesStorage'
+            'django.contrib.staticfiles.storage.StaticFilesStorage'
+            if DEBUG
+            else 'whitenoise.storage.CompressedManifestStaticFilesStorage'
         ),
     },
 }
 
-MEDIA_URL = 'media/'  # unused when USE_CLOUDINARY_MEDIA - Cloudinary URLs are built directly from ImageField.url
+
+MEDIA_URL = 'media/'
+
 if not USE_CLOUDINARY_MEDIA:
     MEDIA_ROOT = BASE_DIR / 'media'
 
+
+# ---------------------------------------------------------------------------
+# Default primary key
+# ---------------------------------------------------------------------------
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# ---------------------------------------------------------------------------
+# Django REST Framework
+# ---------------------------------------------------------------------------
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
+
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ),
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
+    'DEFAULT_SCHEMA_CLASS': (
+        'drf_spectacular.openapi.AutoSchema'
+    ),
 }
+
+
+# ---------------------------------------------------------------------------
+# Simple JWT
+# ---------------------------------------------------------------------------
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
@@ -192,39 +290,102 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+
+# ---------------------------------------------------------------------------
+# API documentation
+# ---------------------------------------------------------------------------
+
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Kitchen Durbar API',
-    'DESCRIPTION': 'REST API for the Kitchen Durbar commercial kitchen appliances store: auth, products, orders and user management.',
+    'DESCRIPTION': (
+        'REST API for the Kitchen Durbar commercial kitchen appliances '
+        'store: auth, products, orders and user management.'
+    ),
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=False)
-CORS_ALLOWED_ORIGINS = env.list(
-    'CORS_ALLOWED_ORIGINS',
-    default=['http://localhost:5173', 'http://localhost', 'http://127.0.0.1:5173'],
+
+# ---------------------------------------------------------------------------
+# CORS
+# ---------------------------------------------------------------------------
+
+CORS_ALLOW_ALL_ORIGINS = env.bool(
+    'CORS_ALLOW_ALL_ORIGINS',
+    default=False
 )
 
-# --- Google Sign-In ---
-# GOOGLE_CLIENT_ID must match the OAuth client the frontend's Google Identity
-# Services button uses (VITE_GOOGLE_CLIENT_ID) - it's the JWT "audience" the
-# backend verifies incoming Google ID tokens against. Left blank until real
-# credentials are uploaded; /api/v1/google returns 503 until it's set.
-GOOGLE_CLIENT_ID = env('GOOGLE_CLIENT_ID', default='')
-GOOGLE_CLIENT_SECRET = env('GOOGLE_CLIENT_SECRET', default='')
+CORS_ALLOWED_ORIGINS = env.list(
+    'CORS_ALLOWED_ORIGINS',
+    default=[
+        'http://localhost:5173',
+        'http://localhost',
+        'http://127.0.0.1:5173',
+    ],
+)
 
-# --- Email (OTP delivery: signup verification + forgot password) ---
-# Defaults to the console backend, which just prints emails to the backend
-# logs - handy for local dev with zero setup. Switch EMAIL_BACKEND to the SMTP
-# one and fill in real credentials (a Gmail App Password, SendGrid, Mailgun,
-# etc.) once ready to actually send mail.
-EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = env.int('EMAIL_PORT', default=587)
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='Kitchen Durbar <no-reply@kitchendurbar.com>')
 
-# How long a signup-verification / password-reset OTP code stays valid.
-OTP_EXPIRY_MINUTES = env.int('OTP_EXPIRY_MINUTES', default=10)
+# ---------------------------------------------------------------------------
+# Google Sign-In
+# ---------------------------------------------------------------------------
+
+GOOGLE_CLIENT_ID = env(
+    'GOOGLE_CLIENT_ID',
+    default=''
+)
+
+GOOGLE_CLIENT_SECRET = env(
+    'GOOGLE_CLIENT_SECRET',
+    default=''
+)
+
+
+# ---------------------------------------------------------------------------
+# Email / OTP
+# ---------------------------------------------------------------------------
+
+EMAIL_BACKEND = env(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.console.EmailBackend'
+)
+
+EMAIL_HOST = env(
+    'EMAIL_HOST',
+    default='smtp.gmail.com'
+)
+
+EMAIL_PORT = env.int(
+    'EMAIL_PORT',
+    default=587
+)
+
+EMAIL_USE_TLS = env.bool(
+    'EMAIL_USE_TLS',
+    default=True
+)
+
+EMAIL_HOST_USER = env(
+    'EMAIL_HOST_USER',
+    default=''
+)
+
+EMAIL_HOST_PASSWORD = env(
+    'EMAIL_HOST_PASSWORD',
+    default=''
+)
+
+DEFAULT_FROM_EMAIL = env(
+    'DEFAULT_FROM_EMAIL',
+    default='Kitchen Durbar <no-reply@kitchendurbar.com>'
+)
+
+
+# ---------------------------------------------------------------------------
+# OTP
+# ---------------------------------------------------------------------------
+
+OTP_EXPIRY_MINUTES = env.int(
+    'OTP_EXPIRY_MINUTES',
+    default=10
+)
+
