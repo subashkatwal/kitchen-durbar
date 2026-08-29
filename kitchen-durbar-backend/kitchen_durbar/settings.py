@@ -240,6 +240,16 @@ STORAGES = {
     },
 }
 
+# DRF's browsable API ships rest_framework/css/bootstrap.min.css with a
+# sourceMappingURL comment pointing at bootstrap.min.css.map - a file DRF's
+# package never actually includes. The manifest storage above rewrites url()
+# references inside CSS to their hashed filenames during collectstatic, and
+# by default treats that unresolvable reference as fatal, crashing the whole
+# deploy. This tells WhiteNoise to skip references it can't resolve instead
+# of erroring, without giving up hashed/cache-busted filenames for every
+# other static file. https://whitenoise.readthedocs.io/en/stable/django.html
+WHITENOISE_MANIFEST_STRICT = False
+
 
 MEDIA_URL = 'media/'
 
