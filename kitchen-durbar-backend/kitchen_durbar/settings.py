@@ -223,30 +223,37 @@ STORAGES = {
         ),
     },
 
-    # Development:
-    #   Normal Django static file storage.
+    # Plain, uncompressed static storage - in BOTH environments. Two
+    # different WhiteNoise storage classes were tried and failed here before
+    # landing on this:
     #
-    # Production:
-    #   WhiteNoise compressed storage - deliberately NOT the *Manifest*
-    #   variant. Manifest storage rewrites url()/sourceMappingURL references
-    #   inside CSS to hashed filenames during collectstatic, which requires
-    #   resolving every referenced file (e.g. DRF's bootstrap.min.css ->
-    #   bootstrap.min.css.map) against what's already been copied to
-    #   STATIC_ROOT at that point. That resolution step has intermittently
-    #   failed with "could not be found" errors on Render's filesystem even
-    #   though the files are real and present in the packages - it reproduces
-    #   cleanly elsewhere, so it looks like Render-specific I/O flakiness we
-    #   can't fix from here. Plain CompressedStaticFilesStorage never parses
-    #   CSS content or resolves references - it just gzips already-collected
-    #   files - so this whole failure class is structurally impossible with
-    #   it. Trade-off: no cache-busting hashed filenames for static assets,
-    #   which doesn't matter for the low-traffic admin/DRF browsable API.
+    #   1. CompressedManifestStaticFilesStorage - rewrites url()/
+    #      sourceMappingURL references inside CSS to hashed filenames during
+    #      collectstatic, which requires resolving every referenced file
+    #      (e.g. DRF's bootstrap.min.css -> bootstrap.min.css.map) against
+    #      what's already been copied to STATIC_ROOT at that point. That
+    #      resolution step intermittently threw "could not be found" even
+    #      though the files are real and present in the packages.
+    #   2. CompressedStaticFilesStorage (no manifest/hashing) - doesn't parse
+    #      CSS, so failure mode #1 is structurally impossible - but it still
+    #      gzips every collected file across a ThreadPoolExecutor, and THAT
+    #      raced too: worker threads occasionally hit FileNotFoundError
+    #      opening a file collectstatic had, per its own accounting, just
+    #      finished writing. Reproduced both locally (Windows/Docker Desktop
+    #      bind-mount I/O latency) and on Render's filesystem (different
+    #      files fail each run, and a retry-without-compression-once fallback
+    #      in entrypoint.sh still wasn't reliable) - two unrelated
+    #      environments hitting the same shape of bug means the thread pool
+    #      itself is the common factor, not either filesystem.
+    #
+    # Plain StaticFilesStorage does a single-threaded copy with no
+    # post-processing step at all, so neither race is possible. WhiteNoise's
+    # WSGI middleware (still in MIDDLEWARE) serves these files directly and
+    # applies gzip at request time instead of ahead of time - no
+    # cache-busting hashed filenames, no precompression, which doesn't matter
+    # for the low-traffic admin/DRF browsable API this project actually has.
     'staticfiles': {
-        'BACKEND': (
-            'django.contrib.staticfiles.storage.StaticFilesStorage'
-            if DEBUG
-            else 'whitenoise.storage.CompressedStaticFilesStorage'
-        ),
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
     },
 }
 
