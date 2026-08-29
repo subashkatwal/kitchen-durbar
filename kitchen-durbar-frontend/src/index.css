@@ -145,31 +145,31 @@ input,select{font-family:inherit;outline:none}
 .kd-mo-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;display:flex;align-items:center;justify-content:center;z-index:2;transition:background 0.15s}
 .kd-mo-close:hover{background:rgba(0,0,0,0.75)}
 .kd-mo-close svg{width:16px;height:16px}
-.kd-ad-popup{position:relative;padding:0;max-width:480px;overflow:hidden}
-.kd-ad-popup img{width:100%;display:block}
+.kd-promo-popup{position:relative;padding:0;max-width:480px;overflow:hidden}
+.kd-promo-popup img{width:100%;display:block}
 /* Ad banner row - Home.tsx renders this reusable component twice: one row
    (up to 2 ads) directly above the homepage content, another row (up to 2
    ads) directly below it. Contained within the same max-width as the rest of
    the page content (matches .kd-b/.kd-ft-in) rather than full page width.
    Renders nothing at all when its ads are empty (see AdBannerSection), so
    neither row ever reserves empty space and the content moves up naturally.
-   Two markups exist side by side - .kd-ad-banner-grid (desktop/tablet, two
-   equal columns) and .kd-ad-banner-carousel (mobile, one ad at a time) - CSS
+   Two markups exist side by side - .kd-promo-banner-grid (desktop/tablet, two
+   equal columns) and .kd-promo-banner-carousel (mobile, one ad at a time) - CSS
    below shows exactly one per breakpoint; only one is ever visible; toggling
    doesn't reshuffle the DOM. */
-.kd-ad-banner-section{max-width:1200px;margin:24px auto;padding:0 24px}
+.kd-promo-banner-section{max-width:1200px;margin:24px auto;padding:0 24px}
 /* align-items:start - ad images can have any aspect ratio (no cropping/
    distortion allowed), so two banners in the same row are rarely the same
    height. Without this, CSS Grid stretches every banner to match the row's
    tallest sibling, leaving an ugly blank gap under the shorter ones. */
-.kd-ad-banner-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
-.kd-ad-banner-carousel{display:none}
-.kd-ad-banner-item{display:block;border-radius:10px;overflow:hidden;border:1px solid var(--kbd);background:var(--kc);box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:transform 0.2s ease,box-shadow 0.2s ease}
-.kd-ad-banner-item:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.1)}
-.kd-ad-banner-item.span-2{grid-column:span 2}
+.kd-promo-banner-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.kd-promo-banner-carousel{display:none}
+.kd-promo-banner-item{display:block;border-radius:10px;overflow:hidden;border:1px solid var(--kbd);background:var(--kc);box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:transform 0.2s ease,box-shadow 0.2s ease}
+.kd-promo-banner-item:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.1)}
+.kd-promo-banner-item.span-2{grid-column:span 2}
 /* No object-fit/aspect-ratio here on purpose - the image's own natural
    dimensions are what render, so nothing is ever cropped or stretched. */
-.kd-ad-banner-item img{width:100%;height:auto;display:block}
+.kd-promo-banner-item img{width:100%;height:auto;display:block}
 .kd-pd{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:1000px;margin:40px auto;background:var(--kc);border:1px solid var(--kbd);border-radius:12px;padding:40px;box-shadow:var(--ksh)}
 .kd-pdi{background:linear-gradient(135deg,#f1f3f5,#e9ecef);border-radius:var(--kr);height:380px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .kd-pdi svg{width:120px;height:120px;color:var(--ktm);opacity:0.4}
@@ -195,10 +195,10 @@ input,select{font-family:inherit;outline:none}
   /* Mobile: only one banner ad total, directly above the content - swap the
      top row to a single auto-rotating carousel (one ad at a time) and hide
      the bottom row entirely (see AdBannerSection hideOnMobile). */
-  .kd-ad-banner-section{padding:0 16px;margin:16px auto}
-  .kd-ad-banner-grid{display:none}
-  .kd-ad-banner-carousel{display:block}
-  .kd-ad-banner-section--desktop-only{display:none}
+  .kd-promo-banner-section{padding:0 16px;margin:16px auto}
+  .kd-promo-banner-grid{display:none}
+  .kd-promo-banner-carousel{display:block}
+  .kd-promo-banner-section--desktop-only{display:none}
   .kd-hr{padding:60px 20px 50px}
   .kd-hr h1{font-size:28px}
   .kd-hr p{font-size:15px}
@@ -255,7 +255,7 @@ input,select{font-family:inherit;outline:none}
   .kd-pg2{grid-template-columns:1fr}
   .kd-ft-in{grid-template-columns:1fr}
   .kd-cg{grid-template-columns:repeat(2,1fr)}
-  .kd-ad-banner-section{padding:0 12px}
+  .kd-promo-banner-section{padding:0 12px}
   .kd-hr h1{font-size:24px}
   .kd-pdh{font-size:22px}
   .kd-pdp{font-size:26px}

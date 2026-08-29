@@ -58,7 +58,7 @@ export default function AdBannerSection({
     return (
       <Tag
         key={ad.id}
-        className={`kd-ad-banner-item${spanFull ? ' span-2' : ''}`}
+        className={`kd-promo-banner-item${spanFull ? ' span-2' : ''}`}
         {...(ad.link_url ? { href: ad.link_url, target: '_blank', rel: 'noreferrer' } : {})}
       >
         <img
@@ -72,11 +72,11 @@ export default function AdBannerSection({
   }
 
   return (
-    <div className={`kd-ad-banner-section${hideOnMobile ? ' kd-ad-banner-section--desktop-only' : ''}`}>
-      <div className="kd-ad-banner-grid">
+    <div className={`kd-promo-banner-section${hideOnMobile ? ' kd-promo-banner-section--desktop-only' : ''}`}>
+      <div className="kd-promo-banner-grid">
         {visibleAds.map((ad, i) => renderBanner(ad, lastIsAlone && i === visibleAds.length - 1))}
       </div>
-      {!hideOnMobile && <div className="kd-ad-banner-carousel">{renderBanner(visibleAds[safeActive])}</div>}
+      {!hideOnMobile && <div className="kd-promo-banner-carousel">{renderBanner(visibleAds[safeActive])}</div>}
     </div>
   )
 }
