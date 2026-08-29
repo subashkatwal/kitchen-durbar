@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import AdBannerSection from '../components/AdBannerSection'
-import AdPopup from '../components/AdPopup'
+// import AdPopup from '../components/AdPopup' // temporarily disabled - see note near its usage below
 import ProductCard from '../components/ProductCard'
 import { Icon } from '../components/icons'
 import { useLanguage } from '../context/LanguageContext'
@@ -90,7 +90,12 @@ export default function Home() {
         )}
       </div>
       <AdBannerSection ads={bottomAds} hideOnMobile />
-      <AdPopup ads={ads} />
+      {/* AdPopup temporarily disabled - not reliably showing its image in
+          production (same root cause as ads not showing in the banner rows:
+          media isn't actually landing on Cloudinary there - see the fix
+          summary in this session). Re-enable by uncommenting this and the
+          import above once that's confirmed fixed. */}
+      {/* <AdPopup ads={ads} /> */}
     </div>
   )
 }
