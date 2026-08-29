@@ -227,28 +227,28 @@ STORAGES = {
     #   Normal Django static file storage.
     #
     # Production:
-    #   WhiteNoise compressed + manifest storage.
-    #
-    # The manifest allows Django/WhiteNoise to keep track of processed
-    # static files and their hashed filenames.
+    #   WhiteNoise compressed storage - deliberately NOT the *Manifest*
+    #   variant. Manifest storage rewrites url()/sourceMappingURL references
+    #   inside CSS to hashed filenames during collectstatic, which requires
+    #   resolving every referenced file (e.g. DRF's bootstrap.min.css ->
+    #   bootstrap.min.css.map) against what's already been copied to
+    #   STATIC_ROOT at that point. That resolution step has intermittently
+    #   failed with "could not be found" errors on Render's filesystem even
+    #   though the files are real and present in the packages - it reproduces
+    #   cleanly elsewhere, so it looks like Render-specific I/O flakiness we
+    #   can't fix from here. Plain CompressedStaticFilesStorage never parses
+    #   CSS content or resolves references - it just gzips already-collected
+    #   files - so this whole failure class is structurally impossible with
+    #   it. Trade-off: no cache-busting hashed filenames for static assets,
+    #   which doesn't matter for the low-traffic admin/DRF browsable API.
     'staticfiles': {
         'BACKEND': (
             'django.contrib.staticfiles.storage.StaticFilesStorage'
             if DEBUG
-            else 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+            else 'whitenoise.storage.CompressedStaticFilesStorage'
         ),
     },
 }
-
-# DRF's browsable API ships rest_framework/css/bootstrap.min.css with a
-# sourceMappingURL comment pointing at bootstrap.min.css.map - a file DRF's
-# package never actually includes. The manifest storage above rewrites url()
-# references inside CSS to their hashed filenames during collectstatic, and
-# by default treats that unresolvable reference as fatal, crashing the whole
-# deploy. This tells WhiteNoise to skip references it can't resolve instead
-# of erroring, without giving up hashed/cache-busted filenames for every
-# other static file. https://whitenoise.readthedocs.io/en/stable/django.html
-WHITENOISE_MANIFEST_STRICT = False
 
 
 MEDIA_URL = 'media/'
