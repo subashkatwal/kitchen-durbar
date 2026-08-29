@@ -43,6 +43,7 @@ export default function Home() {
       <div className="kd-hr">
         <h1>{t('home.heroTitle')}</h1>
         <p>{t('home.heroSubtitle')}</p>
+        <p>{t('home.heroExtra')}</p>
         <div className="kd-hr-btns">
           <button className="kd-btn kd-btn-p" onClick={() => navigate('/products')}>
             {t('cart.browseProducts')}

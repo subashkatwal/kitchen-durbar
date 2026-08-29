@@ -168,6 +168,8 @@ const en = {
   // --- Home ---
   'home.heroTitle': 'Commercial Kitchen Appliances',
   'home.heroSubtitle': 'Premium stainless steel equipment custom-made to your specifications. Built to order, built to last.',
+  'home.heroExtra':
+    'Alongside stainless steel work, Kitchen Durbar also provides gas pipeline installation, entire kitchen servicing, chimney, and ducting services.',
   'home.getStarted': 'Get Started',
   'home.browseByCategory': 'Browse by Category',
   'home.featuredProducts': 'Featured Products',
