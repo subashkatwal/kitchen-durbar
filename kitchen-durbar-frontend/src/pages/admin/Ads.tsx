@@ -40,7 +40,7 @@ export default function AdminAds() {
 
   function load() {
     api
-      .get<Advertisement[]>('/ads')
+      .get<Advertisement[]>('/promotions')
       .then((res) => setAds(res.data))
       .catch((err) => {
         setAds([])
@@ -115,9 +115,9 @@ export default function AdminAds() {
         }
       }
       if (editing) {
-        await api.patch(`/ads/${editing.id}`, body)
+        await api.patch(`/promotions/${editing.id}`, body)
       } else {
-        await api.post('/ads', body)
+        await api.post('/promotions', body)
       }
       setModalOpen(false)
       load()
@@ -132,7 +132,7 @@ export default function AdminAds() {
   async function remove() {
     if (!deleteId) return
     try {
-      await api.delete(`/ads/${deleteId}`)
+      await api.delete(`/promotions/${deleteId}`)
       load()
       toast('Ad deleted')
     } catch (err) {

@@ -23,10 +23,12 @@ export default function Home() {
       .catch(() => setFeatured([]))
 
     // Single fetch shared by the banner section and the popup below - the
-    // public /ads endpoint already only returns active, in-window ads (see
-    // AdvertisementViewSet), already ordered by priority.
+    // public /promotions endpoint already only returns active, in-window ads
+    // (see AdvertisementViewSet), already ordered by priority. Named
+    // "promotions" rather than "ads" so ad-blocker extensions (which
+    // generically block any URL/class containing "ad") don't intercept it.
     api
-      .get<Advertisement[]>('/ads')
+      .get<Advertisement[]>('/promotions')
       .then((res) => setAds(res.data))
       .catch(() => setAds([]))
   }, [])

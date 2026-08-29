@@ -16,7 +16,10 @@ class Advertisement(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200, help_text='Short promotional message shown on the ad card.')
-    image = models.ImageField(upload_to='ads/')
+    # Deliberately not upload_to='ads/' - that path segment gets the image
+    # blocked client-side by ad-blocker extensions (ERR_BLOCKED_BY_CLIENT),
+    # since generic filter lists block any URL containing "/ads".
+    image = models.ImageField(upload_to='promotions/')
     link_url = models.URLField(blank=True)
     position = models.CharField(max_length=5, choices=Position.choices, default=Position.LEFT)
     is_active = models.BooleanField(default=True)
