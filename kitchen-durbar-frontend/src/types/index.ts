@@ -51,6 +51,7 @@ export interface Order {
   user_email: string
   user_name: string
   subtotal: string
+  discount: string
   shipping: string
   total: string
   status: OrderStatus
@@ -64,4 +65,19 @@ export interface CartItem {
   price: number
   icon: string
   quantity: number
+}
+
+export type AdPosition = 'left' | 'right'
+
+export interface Advertisement {
+  id: string
+  title: string
+  image: string
+  link_url: string
+  position: AdPosition
+  is_active: boolean
+  start_date: string | null
+  end_date: string | null
+  priority: number
+  created_at: string
 }

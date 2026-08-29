@@ -3,21 +3,23 @@ import { useSearchParams } from 'react-router-dom'
 import { api, apiErrorMessage } from '../api/client'
 import ProductCard from '../components/ProductCard'
 import Select from '../components/Select'
+import { useLanguage } from '../context/LanguageContext'
 import { CATEGORIES, type Product } from '../types'
-
-const CATEGORY_OPTIONS = [{ value: '', label: 'All Categories' }, ...CATEGORIES.map((c) => ({ value: c, label: c }))]
-const SORT_OPTIONS = [
-  { value: '', label: 'Sort by' },
-  { value: 'pl', label: 'Price: Low to High' },
-  { value: 'ph', label: 'Price: High to Low' },
-  { value: 'nm', label: 'Name: A-Z' },
-]
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const { t } = useLanguage()
+
+  const CATEGORY_OPTIONS = [{ value: '', label: t('products.allCategories') }, ...CATEGORIES.map((c) => ({ value: c, label: c }))]
+  const SORT_OPTIONS = [
+    { value: '', label: t('products.sortBy') },
+    { value: 'pl', label: t('products.priceLowHigh') },
+    { value: 'ph', label: t('products.priceHighLow') },
+    { value: 'nm', label: t('products.nameAZ') },
+  ]
 
   const search = searchParams.get('search') || ''
   const category = searchParams.get('category') || ''
@@ -32,10 +34,10 @@ export default function Products() {
       .then((res) => setProducts(res.data))
       .catch((err) => {
         setProducts([])
-        setError(apiErrorMessage(err, 'Could not load products. Please try again.'))
+        setError(apiErrorMessage(err, t('products.loadError')))
       })
       .finally(() => setLoading(false))
-  }, [search, category, sort])
+  }, [search, category, sort, t])
 
   function update(key: string, value: string) {
     const next = new URLSearchParams(searchParams)
@@ -47,7 +49,7 @@ export default function Products() {
   return (
     <div className="kd-pg active">
       <div className="kd-b">
-        <div className="kd-st">All Products</div>
+        <div className="kd-st">{t('products.title')}</div>
         <div className="kd-tb">
           <div className="kd-s">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -56,7 +58,7 @@ export default function Products() {
             </svg>
             <input
               type="text"
-              placeholder="Search burners, racks, chillers..."
+              placeholder={t('products.searchPlaceholder')}
               value={search}
               onChange={(e) => update('search', e.target.value)}
             />
@@ -72,7 +74,7 @@ export default function Products() {
               <path d="M3.27 6.96L12 12.01l8.73-5.05" />
               <path d="M12 22.08V12" />
             </svg>
-            <p>No products found matching your search.</p>
+            <p>{t('products.notFound')}</p>
           </div>
         ) : (
           <div className="kd-pg2">

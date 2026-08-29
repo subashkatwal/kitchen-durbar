@@ -12,6 +12,7 @@ import ProductDetail from './pages/ProductDetail'
 import Products from './pages/Products'
 import Register from './pages/Register'
 import VerifyOtp from './pages/VerifyOtp'
+import AdminAds from './pages/admin/Ads'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminOrders from './pages/admin/Orders'
 import AdminProducts from './pages/admin/Products'
@@ -51,6 +52,7 @@ export default function App() {
         >
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
+          <Route path="ads" element={<AdminAds />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="orders" element={<AdminOrders />} />
         </Route>

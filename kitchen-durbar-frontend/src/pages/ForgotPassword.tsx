@@ -2,12 +2,14 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiErrorMessage } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { useToast } from '../context/ToastContext'
 
 export default function ForgotPassword() {
   const { requestOtp } = useAuth()
   const navigate = useNavigate()
   const toast = useToast()
+  const { t } = useLanguage()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -18,17 +20,17 @@ export default function ForgotPassword() {
 
     const trimmed = email.trim()
     if (!trimmed) {
-      setError('Please enter your email address.')
+      setError(t('forgotPassword.emailRequired'))
       return
     }
 
     setBusy(true)
     try {
       await requestOtp(trimmed, 'reset')
-      toast('If an account exists for this email, a code has been sent.')
+      toast(t('forgotPassword.success'))
       navigate(`/verify-otp?email=${encodeURIComponent(trimmed)}&purpose=reset`)
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not send the reset code. Please try again.'))
+      setError(apiErrorMessage(err, t('forgotPassword.error')))
     } finally {
       setBusy(false)
     }
@@ -37,11 +39,11 @@ export default function ForgotPassword() {
   return (
     <div className="kd-pg active">
       <form className="kd-a" onSubmit={handleSubmit}>
-        <h2>Forgot Password</h2>
-        <p className="kd-a-sub">Enter your account email and we'll send you a code to reset your password.</p>
+        <h2>{t('forgotPassword.title')}</h2>
+        <p className="kd-a-sub">{t('forgotPassword.subtitle')}</p>
         {error && <div className="kd-err">{error}</div>}
         <div className="kd-fg">
-          <label>Email</label>
+          <label>{t('auth.email')}</label>
           <input
             type="email"
             placeholder="you@example.com"
@@ -51,10 +53,10 @@ export default function ForgotPassword() {
           />
         </div>
         <button className="kd-abtn" type="submit" disabled={busy}>
-          {busy ? 'Sending Code...' : 'Send Reset Code'}
+          {busy ? t('forgotPassword.sending') : t('forgotPassword.submit')}
         </button>
         <div className="kd-as">
-          Remembered your password? <Link to="/login">Sign In</Link>
+          {t('forgotPassword.remembered')} <Link to="/login">{t('forgotPassword.signIn')}</Link>
         </div>
       </form>
     </div>

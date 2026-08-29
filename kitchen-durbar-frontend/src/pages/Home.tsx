@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
+import AdBannerSection from '../components/AdBannerSection'
+import AdPopup from '../components/AdPopup'
 import ProductCard from '../components/ProductCard'
 import { Icon } from '../components/icons'
-import { CATEGORIES, type Product } from '../types'
+import { useLanguage } from '../context/LanguageContext'
+import { CATEGORIES, type Advertisement, type Product } from '../types'
 
 export default function Home() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [featured, setFeatured] = useState<Product[]>([])
+  const [ads, setAds] = useState<Advertisement[]>([])
 
   useEffect(() => {
     // Featured products are chosen from the backend (Product.is_featured),
@@ -16,19 +21,34 @@ export default function Home() {
       .get<Product[]>('/products', { params: { is_featured: true, ordering: '-created_at' } })
       .then((res) => setFeatured(res.data))
       .catch(() => setFeatured([]))
+
+    // Single fetch shared by the banner section and the popup below - the
+    // public /ads endpoint already only returns active, in-window ads (see
+    // AdvertisementViewSet), already ordered by priority.
+    api
+      .get<Advertisement[]>('/ads')
+      .then((res) => setAds(res.data))
+      .catch(() => setAds([]))
   }, [])
+
+  // Up to 4 ads total, split into two rows of up to 2: the first row sits
+  // directly above the content, the second directly below it - see
+  // AdBannerSection.
+  const topAds = ads.slice(0, 2)
+  const bottomAds = ads.slice(2, 4)
 
   return (
     <div className="kd-pg active">
+      <AdBannerSection ads={topAds} />
       <div className="kd-hr">
-        <h1>Commercial Kitchen Appliances</h1>
-        <p>Premium stainless steel equipment custom-made to your specifications. Built to order, built to last.</p>
+        <h1>{t('home.heroTitle')}</h1>
+        <p>{t('home.heroSubtitle')}</p>
         <div className="kd-hr-btns">
           <button className="kd-btn kd-btn-p" onClick={() => navigate('/products')}>
-            Browse Products
+            {t('cart.browseProducts')}
           </button>
           <button className="kd-btn kd-btn-s" onClick={() => navigate('/register')}>
-            Get Started
+            {t('home.getStarted')}
           </button>
         </div>
       </div>
@@ -40,7 +60,7 @@ export default function Home() {
             <rect x="3" y="14" width="7" height="7" rx="1" />
             <rect x="14" y="14" width="7" height="7" rx="1" />
           </svg>
-          Browse by Category
+          {t('home.browseByCategory')}
         </div>
         <div className="kd-cg">
           {CATEGORIES.map((c) => (
@@ -58,7 +78,7 @@ export default function Home() {
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
-              Featured Products
+              {t('home.featuredProducts')}
             </div>
             <div className="kd-pg2">
               {featured.map((p) => (
@@ -68,6 +88,8 @@ export default function Home() {
           </>
         )}
       </div>
+      <AdBannerSection ads={bottomAds} hideOnMobile />
+      <AdPopup ads={ads} />
     </div>
   )
 }

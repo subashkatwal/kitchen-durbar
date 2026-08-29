@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kitchen Durbar Solution - Commercial Kitchen Appliances</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Google Identity Services is loaded dynamically by GoogleButton.tsx
+         (with an hl= param matching the selected site language) instead of
+         statically here - a static tag has no way to pick a locale, so
+         Google fell back to the browser's own locale for the button text. -->
   </head>
   <body>
     <div id="root"></div>

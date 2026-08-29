@@ -1,7 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Footer() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   function goCategory(category: string) {
     navigate(`/products?category=${encodeURIComponent(category)}`)
@@ -19,33 +21,30 @@ export default function Footer() {
             </svg>
             <span style={{ color: '#fff', fontSize: 18, fontWeight: 700 }}>Kitchen Durbar</span>
           </div>
-          <p style={{ fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,0.5)' }}>
-            Premium commercial kitchen appliances made to order in Nepal. Stainless steel equipment built for
-            professional kitchens.
-          </p>
+          <p style={{ fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,0.5)' }}>{t('footer.tagline')}</p>
         </div>
         <div>
-          <h4>Quick Links</h4>
-          <Link to="/">Home</Link>
-          <Link to="/products">Products</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/cart">Cart</Link>
+          <h4>{t('footer.quickLinks')}</h4>
+          <Link to="/">{t('nav.home')}</Link>
+          <Link to="/products">{t('nav.products')}</Link>
+          <Link to="/login">{t('nav.login')}</Link>
+          <Link to="/cart">{t('nav.cart')}</Link>
         </div>
         <div>
-          <h4>Categories</h4>
-          <a onClick={() => goCategory('Burner')}>Burners</a>
-          <a onClick={() => goCategory('Table')}>Tables</a>
-          <a onClick={() => goCategory('Chiller')}>Chillers</a>
-          <a onClick={() => goCategory('Sink')}>Sinks</a>
+          <h4>{t('footer.categories')}</h4>
+          <a onClick={() => goCategory('Burner')}>{t('footer.burners')}</a>
+          <a onClick={() => goCategory('Table')}>{t('footer.tables')}</a>
+          <a onClick={() => goCategory('Chiller')}>{t('footer.chillers')}</a>
+          <a onClick={() => goCategory('Sink')}>{t('footer.sinks')}</a>
         </div>
         <div>
-          <h4>Contact</h4>
-          <a>Kathmandu, Nepal</a>
-          <a>WhatsApp: +977 9769400796</a>
+          <h4>{t('footer.contact')}</h4>
+          <a>{t('footer.address')}</a>
+          <a>{t('footer.whatsapp')}</a>
           <a>info@kitchendurbar.com</a>
         </div>
       </div>
-      <div className="kd-ft-bt">&copy; 2026 Kitchen Durbar Solution. All rights reserved.</div>
+      <div className="kd-ft-bt">{t('footer.copyright')}</div>
     </div>
   )
 }

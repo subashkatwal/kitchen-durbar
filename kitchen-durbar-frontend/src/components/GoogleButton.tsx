@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiErrorMessage } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { useToast } from '../context/ToastContext'
 
 interface GoogleCredentialResponse {
@@ -20,12 +21,19 @@ declare global {
 }
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined
+const SCRIPT_ID = 'kd-google-gsi-script'
 
 /**
  * Renders Google's own "Sign in with Google" button via Google Identity
- * Services (loaded in index.html). The button hands us a signed ID token,
- * which we forward as-is to POST /api/v1/google for server-side verification -
- * we never see or handle the user's Google password.
+ * Services. The button hands us a signed ID token, which we forward as-is to
+ * POST /api/v1/google for server-side verification - we never see or handle
+ * the user's Google password.
+ *
+ * The GSI script is loaded here (not as a static <script> in index.html)
+ * with an explicit hl=<language> query param, and reloaded whenever the
+ * selected site language changes - Google's client otherwise renders the
+ * button's own text (e.g. "Sign in with Google") using the browser's locale,
+ * which can silently disagree with the language the user picked on the site.
  *
  * Until VITE_GOOGLE_CLIENT_ID is set (real credentials uploaded later), this
  * renders a quiet placeholder instead of a broken button.
@@ -34,6 +42,7 @@ export default function GoogleButton() {
   const { loginWithGoogle } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
+  const { language, t } = useLanguage()
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -44,46 +53,65 @@ export default function GoogleButton() {
     async function handleCredential(res: GoogleCredentialResponse) {
       try {
         await loginWithGoogle(res.credential)
-        toast('Signed in with Google')
+        toast(t('google.success'))
         navigate('/')
       } catch (err) {
-        toast(apiErrorMessage(err, 'Google sign-in failed. Please try again.'))
+        toast(apiErrorMessage(err, t('google.error')))
       }
     }
 
     function render() {
       if (cancelled || !window.google || !containerRef.current) return
+      containerRef.current.innerHTML = ''
       window.google.accounts.id.initialize({ client_id: CLIENT_ID as string, callback: handleCredential })
       window.google.accounts.id.renderButton(containerRef.current, {
         theme: 'outline',
         size: 'large',
         text: 'continue_with',
         width: 320,
+        locale: language,
       })
     }
 
-    if (window.google) {
-      render()
-    } else {
-      pollId = window.setInterval(() => {
-        if (window.google) {
-          window.clearInterval(pollId)
-          render()
-        }
-      }, 100)
+    function loadScriptAndRender() {
+      // Force a fresh load with the current language's hl= param - Google
+      // picks the button's locale at load time, so an already-loaded script
+      // won't relocalize just because we call initialize/renderButton again.
+      const existing = document.getElementById(SCRIPT_ID)
+      existing?.remove()
+      delete window.google
+
+      const script = document.createElement('script')
+      script.id = SCRIPT_ID
+      script.src = `https://accounts.google.com/gsi/client?hl=${language}`
+      script.async = true
+      script.defer = true
+      script.onload = () => {
+        if (!cancelled) render()
+      }
+      document.head.appendChild(script)
     }
+
+    loadScriptAndRender()
 
     return () => {
       cancelled = true
       if (pollId) window.clearInterval(pollId)
     }
-  }, [loginWithGoogle, navigate, toast])
+  }, [language, loginWithGoogle, navigate, t, toast])
 
   if (!CLIENT_ID) {
     return (
       <div className="kd-gsi-placeholder">
-        Google sign-in isn't configured yet - set <code>VITE_GOOGLE_CLIENT_ID</code> and{' '}
-        <code>GOOGLE_CLIENT_ID</code> in <code>.env</code> to enable it.
+        {t('google.notConfigured')
+          .split(/(VITE_GOOGLE_CLIENT_ID|GOOGLE_CLIENT_ID|\.env)/)
+          .map((part, i) =>
+            part === 'VITE_GOOGLE_CLIENT_ID' || part === 'GOOGLE_CLIENT_ID' || part === '.env' ? (
+              <code key={i}>{part}</code>
+            ) : (
+              part
+            ),
+          )}
       </div>
     )
   }

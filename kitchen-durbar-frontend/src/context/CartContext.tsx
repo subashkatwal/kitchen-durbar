@@ -1,14 +1,15 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { calculateDiscountAndShipping } from '../lib/pricing'
 import type { CartItem, Product } from '../types'
 
 const STORAGE_KEY = 'kd_cart'
-export const SHIPPING_FEE = 1500
-export const FREE_SHIPPING_THRESHOLD = 50000
 
 interface CartContextValue {
   items: CartItem[]
   count: number
   subtotal: number
+  discount: number
+  discountRate: number
   shipping: number
   total: number
   addItem: (product: Product) => void
@@ -64,11 +65,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const count = items.reduce((s, i) => s + i.quantity, 0)
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
-  const shipping = subtotal === 0 || subtotal > FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE
-  const total = subtotal + shipping
+  const { discount, shipping, rate: discountRate } = calculateDiscountAndShipping(subtotal)
+  const total = subtotal - discount + shipping
 
   return (
-    <CartContext.Provider value={{ items, count, subtotal, shipping, total, addItem, removeItem, updateQty, clear }}>
+    <CartContext.Provider
+      value={{ items, count, subtotal, discount, discountRate, shipping, total, addItem, removeItem, updateQty, clear }}
+    >
       {children}
     </CartContext.Provider>
   )

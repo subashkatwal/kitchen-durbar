@@ -4,11 +4,13 @@ import logo from '../assets/logo.png'
 import ConfirmDialog from './ConfirmDialog'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
+import { useLanguage } from '../context/LanguageContext'
 import { useToast } from '../context/ToastContext'
 
 export default function Header() {
   const { user, logout } = useAuth()
   const { count } = useCart()
+  const { language, setLanguage, t } = useLanguage()
   const navigate = useNavigate()
   const location = useLocation()
   const toast = useToast()
@@ -23,7 +25,7 @@ export default function Header() {
   function confirmLogout() {
     setLogoutOpen(false)
     logout()
-    toast('Logged out successfully')
+    toast(t('nav.logoutSuccess'))
     navigate('/')
   }
 
@@ -37,11 +39,19 @@ export default function Header() {
       <div className="kd-h-actions">
         <nav className={`kd-n${menuOpen ? ' open' : ''}`}>
           <NavLink to="/" end>
-            Home
+            {t('nav.home')}
           </NavLink>
-          <NavLink to="/products">Products</NavLink>
-          {user?.is_staff && <NavLink to="/admin">Admin</NavLink>}
-          {user ? <a onClick={() => setLogoutOpen(true)}>Logout</a> : <NavLink to="/login">Login</NavLink>}
+          <NavLink to="/products">{t('nav.products')}</NavLink>
+          {user?.is_staff && <NavLink to="/admin">{t('nav.admin')}</NavLink>}
+          {user ? <a onClick={() => setLogoutOpen(true)}>{t('nav.logout')}</a> : <NavLink to="/login">{t('nav.login')}</NavLink>}
+          <div className="kd-lang" role="group" aria-label="Language">
+            <button className={language === 'en' ? 'active' : ''} onClick={() => setLanguage('en')}>
+              EN
+            </button>
+            <button className={language === 'ne' ? 'active' : ''} onClick={() => setLanguage('ne')}>
+              NE
+            </button>
+          </div>
         </nav>
 
         <button className="kd-cb" onClick={() => navigate('/cart')}>
@@ -51,13 +61,13 @@ export default function Header() {
             <circle cx="18" cy="20" r="1.5" fill="currentColor" stroke="none" />
             <path d="M6 6L5 3H2" />
           </svg>
-          Cart
+          {t('nav.cart')}
           <span className="kd-cc">{count}</span>
         </button>
 
         <button
           className="kd-menu-btn"
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((o) => !o)}
         >
@@ -77,10 +87,10 @@ export default function Header() {
 
       <ConfirmDialog
         open={logoutOpen}
-        title="Log out"
-        message="Are you sure you want to log out?"
-        confirmLabel="Log out"
-        cancelLabel="Cancel"
+        title={t('nav.logoutTitle')}
+        message={t('nav.logoutMessage')}
+        confirmLabel={t('nav.logoutConfirm')}
+        cancelLabel={t('common.cancel')}
         onConfirm={confirmLogout}
         onCancel={() => setLogoutOpen(false)}
       />

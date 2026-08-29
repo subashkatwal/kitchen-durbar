@@ -20,6 +20,15 @@ export default defineConfig({
       '/api': { target: BACKEND_ORIGIN, changeOrigin: true },
       '/django-admin': { target: BACKEND_ORIGIN, changeOrigin: true },
     },
+    // Docker Desktop on Windows doesn't reliably forward native filesystem
+    // change events from the host into the container over the bind mount
+    // (docker-compose.override.yml mounts the whole frontend dir) - chokidar
+    // never sees edits, so Vite keeps serving stale transformed modules over
+    // HMR even though the files on disk are current. Polling works around it.
+    watch: {
+      usePolling: true,
+      interval: 300,
+    },
   },
   preview: {
     host: true,

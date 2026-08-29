@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import { apiErrorMessage } from '../api/client'
 import GoogleButton from '../components/GoogleButton'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { useToast } from '../context/ToastContext'
 
 export default function Register() {
   const { register } = useAuth()
   const navigate = useNavigate()
   const toast = useToast()
+  const { t } = useLanguage()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -23,21 +25,21 @@ export default function Register() {
     const trimmedName = fullName.trim()
     const trimmedEmail = email.trim()
     if (!trimmedName || !trimmedEmail) {
-      setError('Please fill in your name and email.')
+      setError(t('register.nameEmailRequired'))
       return
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.')
+      setError(t('auth.passwordTooShort'))
       return
     }
 
     setBusy(true)
     try {
       await register({ full_name: trimmedName, email: trimmedEmail, phone: phone.trim(), password })
-      toast('Account created! Check your email for a verification code.')
+      toast(t('register.success'))
       navigate(`/verify-otp?email=${encodeURIComponent(trimmedEmail)}&purpose=signup`)
     } catch (err) {
-      setError(apiErrorMessage(err, 'Could not create your account. Please try again.'))
+      setError(apiErrorMessage(err, t('register.error')))
     } finally {
       setBusy(false)
     }
@@ -46,25 +48,25 @@ export default function Register() {
   return (
     <div className="kd-pg active">
       <form className="kd-a" onSubmit={handleSubmit}>
-        <h2>Create Account</h2>
+        <h2>{t('register.title')}</h2>
         {error && <div className="kd-err">{error}</div>}
         <div className="kd-fg">
-          <label>Full Name</label>
+          <label>{t('register.fullName')}</label>
           <input type="text" placeholder="Ram Bahadur" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
         </div>
         <div className="kd-fg">
-          <label>Email</label>
+          <label>{t('auth.email')}</label>
           <input type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
         <div className="kd-fg">
-          <label>Phone</label>
+          <label>{t('register.phone')}</label>
           <input type="tel" placeholder="+977 98XXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>
         <div className="kd-fg">
-          <label>Password</label>
+          <label>{t('auth.password')}</label>
           <input
             type="password"
-            placeholder="At least 6 characters"
+            placeholder={t('auth.passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             minLength={6}
@@ -72,12 +74,12 @@ export default function Register() {
           />
         </div>
         <button className="kd-abtn" type="submit" disabled={busy}>
-          {busy ? 'Creating Account...' : 'Create Account'}
+          {busy ? t('register.creating') : t('register.submit')}
         </button>
-        <div className="kd-divider">or</div>
+        <div className="kd-divider">{t('common.or')}</div>
         <GoogleButton />
         <div className="kd-as">
-          Already have an account? <Link to="/login">Sign In</Link>
+          {t('register.haveAccount')} <Link to="/login">{t('register.signIn')}</Link>
         </div>
       </form>
     </div>

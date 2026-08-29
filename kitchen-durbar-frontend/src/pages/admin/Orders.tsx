@@ -54,6 +54,7 @@ export default function AdminOrders() {
               <th>Order ID</th>
               <th>Customer</th>
               <th>Items</th>
+              <th>Discount</th>
               <th>Total</th>
               <th>Status</th>
               <th>Date</th>
@@ -63,7 +64,7 @@ export default function AdminOrders() {
           <tbody>
             {orders.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ textAlign: 'center', color: 'var(--ktm)', padding: 20 }}>
+                <td colSpan={8} style={{ textAlign: 'center', color: 'var(--ktm)', padding: 20 }}>
                   No orders yet
                 </td>
               </tr>
@@ -73,6 +74,7 @@ export default function AdminOrders() {
                 <td style={{ fontWeight: 600 }}>#{o.id.slice(0, 8)}</td>
                 <td>{o.user_name || o.user_email}</td>
                 <td>{o.items.length} items</td>
+                <td>{Number(o.discount) > 0 ? `-NPR ${Number(o.discount).toLocaleString()}` : '—'}</td>
                 <td style={{ fontWeight: 700 }}>NPR {Number(o.total).toLocaleString()}</td>
                 <td>
                   <select className="kd-stsel" value={o.status} onChange={(e) => updateStatus(o, e.target.value as OrderStatus)}>

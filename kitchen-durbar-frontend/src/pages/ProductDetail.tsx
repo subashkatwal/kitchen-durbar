@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api, apiErrorMessage } from '../api/client'
 import { Icon } from '../components/icons'
 import { useCart } from '../context/CartContext'
+import { useLanguage } from '../context/LanguageContext'
 import { useToast } from '../context/ToastContext'
 import type { Product } from '../types'
 
@@ -12,6 +13,7 @@ export default function ProductDetail() {
   const navigate = useNavigate()
   const { addItem } = useCart()
   const toast = useToast()
+  const { t } = useLanguage()
   const [product, setProduct] = useState<Product | null>(null)
   const [error, setError] = useState('')
 
@@ -23,9 +25,9 @@ export default function ProductDetail() {
       .then((res) => setProduct(res.data))
       .catch((err) => {
         const status = axios.isAxiosError(err) ? err.response?.status : undefined
-        setError(status === 404 ? 'Product not found.' : apiErrorMessage(err, 'Could not load this product. Please try again.'))
+        setError(status === 404 ? t('product.notFound') : apiErrorMessage(err, t('product.loadError')))
       })
-  }, [id])
+  }, [id, t])
 
   if (error) {
     return (
@@ -33,7 +35,7 @@ export default function ProductDetail() {
         <div className="kd-em">
           <p>{error}</p>
           <Link to="/products" className="kd-btn kd-btn-p" style={{ marginTop: 16, display: 'inline-flex' }}>
-            Back to Products
+            {t('product.backToProducts')}
           </Link>
         </div>
       </div>
@@ -57,16 +59,16 @@ export default function ProductDetail() {
           <div className="kd-pdd">{product.description}</div>
           <div className="kd-pmeta">
             <span>
-              <strong>Material:</strong> Stainless Steel 304 Grade
+              <strong>{t('product.material')}</strong> {t('product.materialValue')}
             </span>
             <span>
-              <strong>Delivery:</strong> 7-14 business days (Made to Order)
+              <strong>{t('product.delivery')}</strong> {t('product.deliveryValue')}
             </span>
             <span>
-              <strong>Warranty:</strong> 1 Year Manufacturer Warranty
+              <strong>{t('product.warranty')}</strong> {t('product.warrantyValue')}
             </span>
             <span>
-              <strong>Customization:</strong> Available on request
+              <strong>{t('product.customization')}</strong> {t('product.customizationValue')}
             </span>
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
@@ -74,7 +76,7 @@ export default function ProductDetail() {
               className="kd-btn kd-btn-p"
               onClick={() => {
                 addItem(product)
-                toast('Added to cart!')
+                toast(t('product.addedToCart'))
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -83,10 +85,10 @@ export default function ProductDetail() {
                 <circle cx="18" cy="20" r="1.5" fill="currentColor" stroke="none" />
                 <path d="M6 6L5 3H2" />
               </svg>
-              Add to Cart
+              {t('product.addToCart')}
             </button>
             <button className="kd-btn kd-btn-o" onClick={() => navigate('/products')}>
-              Back to Products
+              {t('product.backToProducts')}
             </button>
           </div>
         </div>
