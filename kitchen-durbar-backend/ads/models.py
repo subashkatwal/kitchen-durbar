@@ -5,14 +5,17 @@ from django.utils import timezone
 
 
 class Advertisement(models.Model):
-    """An admin-managed ad shown in the homepage's left/right ad rails and in
-    the once-per-session popup. `image` goes through the same Cloudinary/local
+    """An admin-managed ad. `position` picks where on the storefront it runs
+    (see Position); several ads in the same banner placement rotate/sit side
+    by side in `priority` order. `image` goes through the same Cloudinary/local
     STORAGES config as Product.image (see settings.py) - nothing ad-specific
     needed there."""
 
     class Position(models.TextChoices):
-        LEFT = 'left', 'Left rail'
-        RIGHT = 'right', 'Right rail'
+        HOME_TOP = 'home_top', 'Homepage - below the hero'
+        HOME_BOTTOM = 'home_bottom', 'Homepage - above the contact section'
+        PRODUCTS = 'products', 'Products page - above the catalogue'
+        POPUP = 'popup', 'Popup - once per visit'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200, help_text='Short promotional message shown on the ad card.')
@@ -21,12 +24,12 @@ class Advertisement(models.Model):
     # since generic filter lists block any URL containing "/ads".
     image = models.ImageField(upload_to='promotions/')
     link_url = models.URLField(blank=True)
-    position = models.CharField(max_length=5, choices=Position.choices, default=Position.LEFT)
+    position = models.CharField(max_length=20, choices=Position.choices, default=Position.HOME_TOP)
     is_active = models.BooleanField(default=True)
     # Optional scheduling window - blank start/end means "no bound" on that side.
     start_date = models.DateTimeField(null=True, blank=True, help_text='Leave blank to start showing immediately.')
     end_date = models.DateTimeField(null=True, blank=True, help_text='Leave blank to never expire.')
-    # Lower first - both display order within a rail and which ad the popup picks.
+    # Lower first - display order within a placement, and which ad the popup picks.
     priority = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 

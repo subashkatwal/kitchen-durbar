@@ -64,10 +64,76 @@ export interface CartItem {
   name: string
   price: number
   icon: string
+  /** Optional - carts saved before product photos were tracked won't have it. */
+  image?: string | null
+  category?: Category
   quantity: number
 }
 
-export type AdPosition = 'left' | 'right'
+export interface TeamMember {
+  id: string
+  name: string
+  role: string
+  bio: string
+  photo: string | null
+  display_order: number
+  is_active: boolean
+  created_at: string
+}
+
+export interface Enquiry {
+  id: string
+  name: string
+  company: string
+  phone: string
+  email: string
+  message: string
+  is_handled: boolean
+  created_at: string
+}
+
+export interface SiteImage {
+  id: string
+  key: string
+  label: string
+  image: string
+  alt_text: string
+  updated_at: string
+}
+
+export interface CmsProject {
+  id: string
+  title: string
+  title_ne: string
+  sector: string
+  sector_ne: string
+  image: string
+  show_on_home: boolean
+  display_order: number
+  is_active: boolean
+  created_at: string
+}
+
+export interface CmsTestimonial {
+  id: string
+  quote: string
+  quote_ne: string
+  source: string
+  source_ne: string
+  display_order: number
+  is_active: boolean
+  created_at: string
+}
+
+/** Where an ad runs - mirrors ads.models.Advertisement.Position. */
+export type AdPosition = 'home_top' | 'home_bottom' | 'products' | 'popup'
+
+export const AD_POSITIONS: { value: AdPosition; label: string }[] = [
+  { value: 'home_top', label: 'Homepage - below the hero' },
+  { value: 'home_bottom', label: 'Homepage - above the contact section' },
+  { value: 'products', label: 'Products page - above the catalogue' },
+  { value: 'popup', label: 'Popup - once per visit' },
+]
 
 export interface Advertisement {
   id: string

@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { api, apiErrorMessage } from '../../api/client'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { useToast } from '../../context/ToastContext'
-import type { Advertisement } from '../../types'
+import Select from '../../components/Select'
+import { AD_POSITIONS, type AdPosition, type Advertisement } from '../../types'
 
 const emptyForm = {
   title: '',
   link_url: '',
+  position: 'home_top' as AdPosition,
   is_active: true,
   start_date: '',
   end_date: '',
@@ -63,6 +65,7 @@ export default function AdminAds() {
     setForm({
       title: ad.title,
       link_url: ad.link_url,
+      position: ad.position,
       is_active: ad.is_active,
       start_date: toInputValue(ad.start_date),
       end_date: toInputValue(ad.end_date),
@@ -99,6 +102,7 @@ export default function AdminAds() {
         body = new FormData()
         body.append('title', form.title.trim())
         body.append('link_url', form.link_url.trim())
+        body.append('position', form.position)
         body.append('is_active', String(form.is_active))
         if (startDate) body.append('start_date', startDate)
         if (endDate) body.append('end_date', endDate)
@@ -108,6 +112,7 @@ export default function AdminAds() {
         body = {
           title: form.title.trim(),
           link_url: form.link_url.trim(),
+          position: form.position,
           is_active: form.is_active,
           start_date: startDate,
           end_date: endDate,
@@ -145,14 +150,15 @@ export default function AdminAds() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700 }}>Ad Management</h2>
+        <h2>Ad Management</h2>
         <button className="kd-btn kd-btn-p" style={{ padding: '10px 20px', fontSize: 14 }} onClick={openAdd}>
           + Add Ad
         </button>
       </div>
-      <p style={{ fontSize: 13, color: 'var(--ktm)', marginTop: -12, marginBottom: 20 }}>
-        The top 4 active ads (by priority, lowest first) show above the homepage hero - as a 2x2 grid on
-        desktop/tablet, one at a time on mobile.
+      <p style={{ fontSize: 15, color: 'var(--muted-foreground)', marginTop: -12, marginBottom: 20, maxWidth: 760 }}>
+        Each ad runs in the placement you choose. Banner placements show two per row on desktop and rotate one at a
+        time on phones; the popup shows the top-priority popup ad once per visit. Lower priority numbers show first.
+        Ads only appear while active and inside their start/end window.
       </p>
       <div style={{ overflowX: 'auto' }}>
         <table className="kd-tb2">
@@ -160,6 +166,7 @@ export default function AdminAds() {
             <tr>
               <th></th>
               <th>Title</th>
+              <th>Placement</th>
               <th>Priority</th>
               <th>Window</th>
               <th>Active</th>
@@ -170,16 +177,19 @@ export default function AdminAds() {
             {ads.map((ad) => (
               <tr key={ad.id}>
                 <td>
-                  <img src={ad.image} alt={ad.title} style={{ width: 60, height: 40, objectFit: 'cover', borderRadius: 6 }} />
+                  <img src={ad.image} alt={ad.title} style={{ width: 72, height: 44, objectFit: 'cover' }} />
                 </td>
                 <td style={{ fontWeight: 600 }}>{ad.title}</td>
+                <td style={{ fontSize: 13 }}>{AD_POSITIONS.find((p) => p.value === ad.position)?.label ?? ad.position}</td>
                 <td>{ad.priority}</td>
-                <td style={{ fontSize: 12, color: 'var(--ktm)' }}>
+                <td style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>
                   {ad.start_date ? new Date(ad.start_date).toLocaleDateString() : 'Any time'}
                   {' → '}
                   {ad.end_date ? new Date(ad.end_date).toLocaleDateString() : 'No expiry'}
                 </td>
-                <td>{ad.is_active && <span className="kd-bg kd-bgs">Active</span>}</td>
+                <td>
+                  <span className={`kd-bg ${ad.is_active ? 'kd-bgs' : 'kd-bgd'}`}>{ad.is_active ? 'Active' : 'Off'}</span>
+                </td>
                 <td>
                   <button className="kd-btn kd-btn-o" style={{ padding: '5px 12px', fontSize: 12 }} onClick={() => openEdit(ad)}>
                     Edit
@@ -216,7 +226,15 @@ export default function AdminAds() {
             />
           </div>
           <div className="kd-fg">
-            <label>Priority (lower shows first / earlier in the grid)</label>
+            <label>Placement</label>
+            <Select
+              value={form.position}
+              onChange={(v) => setForm({ ...form, position: v as AdPosition })}
+              options={AD_POSITIONS}
+            />
+          </div>
+          <div className="kd-fg">
+            <label>Priority (lower shows first)</label>
             <input
               type="number"
               placeholder="0"
@@ -249,7 +267,7 @@ export default function AdminAds() {
               <img
                 src={imagePreview}
                 alt="Preview"
-                style={{ marginTop: 10, maxWidth: 260, maxHeight: 140, objectFit: 'contain', borderRadius: 8, border: '1px solid var(--kbd)' }}
+                style={{ marginTop: 10, maxWidth: 260, maxHeight: 140, objectFit: 'contain', borderRadius: 8, border: '1px solid var(--border)' }}
               />
             )}
           </div>
@@ -260,7 +278,7 @@ export default function AdminAds() {
                 checked={form.is_active}
                 onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
               />
-              Active (shown on the homepage)
+              Active (shown on the website)
             </label>
           </div>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>

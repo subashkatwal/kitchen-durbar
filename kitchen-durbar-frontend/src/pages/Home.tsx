@@ -1,103 +1,349 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { ArrowRight, ArrowUpRight, Check, ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import AdBannerSection from '../components/AdBannerSection'
-// import AdPopup from '../components/AdPopup' // temporarily disabled - see note near its usage below
 import ProductCard from '../components/ProductCard'
-import { Icon } from '../components/icons'
+import { ContactSection, CtaBand, TeamSection } from '../components/sections'
+import { buttonClass, CONTAINER, indexLabel, SectionTitle } from '../components/ui'
+import { categorySlot, useSiteContent } from '../content/site'
+import { useProjects, useSiteImageGetter, useTestimonials } from '../context/CmsContext'
 import { useLanguage } from '../context/LanguageContext'
-import { CATEGORIES, type Advertisement, type Product } from '../types'
+import { CATEGORIES, type Advertisement, type Category, type Product } from '../types'
 
 export default function Home() {
-  const navigate = useNavigate()
   const { t } = useLanguage()
+  const site = useSiteContent()
+  const home = site.home
+  const siteImage = useSiteImageGetter()
+  const { projects } = useProjects()
+  const testimonials = useTestimonials()
   const [featured, setFeatured] = useState<Product[]>([])
   const [ads, setAds] = useState<Advertisement[]>([])
+  const [query, setQuery] = useState('')
+  const [category, setCategory] = useState<Category | ''>('')
+  const [testimonial, setTestimonial] = useState(0)
 
   useEffect(() => {
-    // Featured products are chosen from the backend (Product.is_featured),
-    // not hardcoded here - toggle it per-product from the admin dashboard.
+    // Featured products are chosen from the backend (Product.is_featured) -
+    // toggle it per-product from the admin dashboard. Until any are flagged,
+    // fall back to the newest products so the section is never empty.
     api
       .get<Product[]>('/products', { params: { is_featured: true, ordering: '-created_at' } })
-      .then((res) => setFeatured(res.data))
+      .then(async (res) => {
+        if (res.data.length) return setFeatured(res.data)
+        const latest = await api.get<Product[]>('/products', { params: { ordering: '-created_at' } })
+        setFeatured(latest.data.slice(0, 6))
+      })
       .catch(() => setFeatured([]))
 
-    // Single fetch shared by the banner section and the popup below - the
-    // public /promotions endpoint already only returns active, in-window ads
-    // (see AdvertisementViewSet), already ordered by priority. Named
-    // "promotions" rather than "ads" so ad-blocker extensions (which
-    // generically block any URL/class containing "ad") don't intercept it.
+    // One fetch for both homepage ad placements. The public /promotions
+    // endpoint only returns active, in-window ads, ordered by priority.
+    // Named "promotions" rather than "ads" so ad-blockers don't intercept it.
     api
       .get<Advertisement[]>('/promotions')
       .then((res) => setAds(res.data))
       .catch(() => setAds([]))
   }, [])
 
-  // Up to 4 ads total, split into two rows of up to 2: the first row sits
-  // directly above the content, the second directly below it - see
-  // AdBannerSection.
-  const topAds = ads.slice(0, 2)
-  const bottomAds = ads.slice(2, 4)
+  const featuredCategories = useMemo(
+    () => CATEGORIES.filter((c) => featured.some((p) => p.category === c)),
+    [featured],
+  )
+
+  const visibleFeatured = featured.filter(
+    (p) => (!category || p.category === category) && p.name.toLowerCase().includes(query.trim().toLowerCase()),
+  )
+
+  const homeProjects = projects.filter((p) => p.showOnHome).slice(0, 4)
+  const quote = testimonials.length ? testimonials[testimonial % testimonials.length] : null
 
   return (
-    <div className="kd-pg active">
-      <AdBannerSection ads={topAds} />
-      <div className="kd-hr">
-        <h1>{t('home.heroTitle')}</h1>
-        <p>{t('home.heroSubtitle')}</p>
-        <p>{t('home.heroExtra')}</p>
-        <div className="kd-hr-btns">
-          <button className="kd-btn kd-btn-p" onClick={() => navigate('/products')}>
-            {t('cart.browseProducts')}
-          </button>
-          <button className="kd-btn kd-btn-s" onClick={() => navigate('/register')}>
-            {t('home.getStarted')}
-          </button>
+    <>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-foreground md:min-h-[calc(100vh-5rem)]">
+        <img
+          src={siteImage('home_hero')}
+          width={1600}
+          height={1008}
+          alt="Commercial kitchen by Kitchen Durbar Solutions"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-foreground/95 via-foreground/70 to-foreground/20 md:via-foreground/55 md:to-transparent" />
+        <div className={`relative flex items-center py-20 md:min-h-[calc(100vh-5rem)] ${CONTAINER}`}>
+          <div className="reveal max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary">{home.heroEyebrow}</p>
+            <h1 className="mt-5 text-5xl leading-[.95] text-background sm:text-6xl md:text-8xl md:leading-[.92]">
+              {home.heroTitle}
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-8 text-background/75 md:mt-7">{home.heroCopy}</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap md:mt-9">
+              <Link to="/products" className={buttonClass('brass')}>
+                {t('home.exploreEquipment')} <ArrowRight />
+              </Link>
+              <Link to="/contact" className={buttonClass('darkOutline')}>
+                {t('nav.requestQuote')}
+              </Link>
+            </div>
+            {/* Stats row (150+ Projects / 120+ Clients / A–Z Solutions) hidden for now.
+                Restore both blocks below (mobile + desktop) to bring it back.
+            <div className="mt-10 grid grid-cols-3 gap-4 border-t border-background/20 pt-6 md:hidden">
+              {home.stats.map(([value, label]) => (
+                <div key={label} className="text-background">
+                  <b className="block font-display text-3xl font-normal">{value}</b>
+                  <span className="text-xs uppercase tracking-[.12em] text-background/60">{label}</span>
+                </div>
+              ))}
+            </div>
+            */}
+          </div>
         </div>
-      </div>
-      <div className="kd-b">
-        <div className="kd-st">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="3" width="7" height="7" rx="1" />
-            <rect x="14" y="3" width="7" height="7" rx="1" />
-            <rect x="3" y="14" width="7" height="7" rx="1" />
-            <rect x="14" y="14" width="7" height="7" rx="1" />
-          </svg>
-          {t('home.browseByCategory')}
-        </div>
-        <div className="kd-cg">
-          {CATEGORIES.map((c) => (
-            <div key={c} className="kd-ccard" onClick={() => navigate(`/products?category=${c}`)}>
-              <div style={{ color: 'var(--ka)' }}>
-                <Icon name={c.toLowerCase()} />
-              </div>
-              <span>{c}</span>
+        {/*
+        <div className="absolute bottom-0 right-0 hidden bg-background px-8 py-5 md:flex md:gap-10">
+          {home.stats.map(([value, label]) => (
+            <div key={label}>
+              <b className="font-display text-3xl font-normal">{value}</b>
+              <span className="ml-2 text-xs uppercase tracking-[.14em] text-muted-foreground">{label}</span>
             </div>
           ))}
         </div>
-        {featured.length > 0 && (
-          <>
-            <div className="kd-st">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-              {t('home.featuredProducts')}
+        */}
+      </section>
+
+      <AdBannerSection ads={ads.filter((a) => a.position === 'home_top')} />
+
+      {/* Our approach */}
+      <section className={`grid gap-12 py-16 md:py-24 lg:grid-cols-2 lg:items-center lg:py-32 ${CONTAINER}`}>
+        <div className="relative">
+          <img
+            src={siteImage('home_approach')}
+            width={1200}
+            height={1200}
+            loading="lazy"
+            alt="Kitchen planning consultation"
+            className="aspect-square w-full object-cover"
+          />
+          <div className="absolute -bottom-5 right-3 bg-primary px-5 py-4 text-primary-foreground sm:px-6 sm:py-5 md:right-8">
+            <b className="font-display text-2xl font-normal sm:text-3xl">{home.sinceValue}</b>
+            <span className="block text-xs uppercase tracking-[.14em]">{home.sinceLabel}</span>
+          </div>
+        </div>
+        <div className="lg:pl-10">
+          <SectionTitle eyebrow={home.approachEyebrow} title={home.approachTitle} />
+          <p className="max-w-xl leading-8 text-muted-foreground">{home.approachCopy}</p>
+          <div className="mt-8 grid gap-4 text-sm font-bold sm:grid-cols-2">
+            {home.approachPoints.map((point) => (
+              <span key={point} className="flex items-center gap-2">
+                <Check className="size-4 shrink-0 text-primary" />
+                {point}
+              </span>
+            ))}
+          </div>
+          <Link to="/about" className={buttonClass('outline', 'lg', 'mt-9')}>
+            {t('home.ourCompany')} <ArrowRight />
+          </Link>
+        </div>
+      </section>
+
+      {/* Sectors */}
+      <section className="bg-card py-16 md:py-24">
+        <div className={CONTAINER}>
+          <SectionTitle eyebrow={home.sectorsEyebrow} title={home.sectorsTitle} />
+          <div className="grid border-l border-t border-border md:grid-cols-2 lg:grid-cols-3">
+            {site.sectors.map(([title, copy], i) => (
+              <Link
+                key={title}
+                to="/solutions"
+                className="group relative border-b border-r border-border p-6 transition-colors hover:bg-background sm:p-7"
+              >
+                <span className="text-xs text-primary">{indexLabel(i)}</span>
+                <h3 className="mt-6 text-3xl sm:mt-10">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{copy}</p>
+                <ArrowUpRight className="absolute right-6 top-6 size-5 text-muted-foreground transition-colors group-hover:text-primary sm:right-7 sm:top-7" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Equipment categories */}
+      <section className={`py-16 md:py-24 ${CONTAINER}`}>
+        <SectionTitle eyebrow={home.categoriesEyebrow} title={home.categoriesTitle} />
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+          {CATEGORIES.map((c) => (
+            <Link
+              key={c}
+              to={`/products?category=${encodeURIComponent(c)}`}
+              className="group relative min-h-40 overflow-hidden bg-foreground sm:min-h-56"
+            >
+              <img
+                src={siteImage(categorySlot(c))}
+                alt=""
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover opacity-55 transition duration-500 group-hover:scale-105 group-hover:opacity-45"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-4 sm:p-6">
+                <h3 className="text-2xl text-background sm:text-3xl">{site.categoryLabels[c]}</h3>
+                <ArrowUpRight className="hidden size-5 shrink-0 text-primary transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 sm:block" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Featured equipment */}
+      {featured.length > 0 && (
+        <section className="bg-card py-16 md:py-24">
+          <div className={CONTAINER}>
+            <SectionTitle eyebrow={home.featuredEyebrow} title={home.featuredTitle} copy={home.featuredCopy} />
+            <div className="mb-8 flex flex-col gap-4 border-y border-border py-5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="relative w-full lg:max-w-sm">
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  aria-label={t('products.searchLabel')}
+                  placeholder={t('products.searchLabel')}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="h-11 w-full border border-input bg-card pl-10 pr-3 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 lg:mx-0 lg:px-0">
+                {(['', ...featuredCategories] as (Category | '')[]).map((c) => (
+                  <button
+                    key={c || 'all'}
+                    type="button"
+                    onClick={() => setCategory(c)}
+                    className={buttonClass(category === c ? 'brass' : 'outline', 'sm', 'shrink-0')}
+                  >
+                    {c ? site.categoryLabels[c] : t('products.all')}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="kd-pg2">
-              {featured.map((p) => (
-                <ProductCard key={p.id} product={p} />
+            {visibleFeatured.length ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {visibleFeatured.slice(0, 6).map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            ) : (
+              <p className="py-10 text-center text-sm text-muted-foreground">{t('products.notFound')}</p>
+            )}
+            <div className="mt-10 flex justify-center">
+              <Link to="/products" className={buttonClass('outline', 'lg', 'w-full sm:w-auto')}>
+                {t('home.viewCatalogue')} <ArrowRight />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Why us */}
+      <section className="bg-foreground py-16 text-background md:py-24">
+        <div className={CONTAINER}>
+          <SectionTitle eyebrow={home.whyEyebrow} title={home.whyTitle} light />
+          <div className="grid gap-px bg-background/15 md:grid-cols-2 lg:grid-cols-3">
+            {site.services.map(([title, copy], i) => (
+              <div key={title} className="bg-foreground p-6 sm:p-7">
+                <span className="text-primary">{indexLabel(i)}</span>
+                <h3 className="mt-6 text-3xl sm:mt-10">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-background/60">{copy}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Process */}
+      <section className={`py-16 md:py-24 ${CONTAINER}`}>
+        <SectionTitle eyebrow={home.processEyebrow} title={home.processTitle} />
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 md:grid-cols-5">
+          {site.steps.map((step, i) => (
+            <div key={step} className="relative border-t border-primary pt-5">
+              <span className="text-xs text-muted-foreground">{indexLabel(i)}</span>
+              <h3 className="mt-4 text-3xl md:mt-6">{step}</h3>
+              {i < site.steps.length - 1 && (
+                <ArrowRight className="absolute right-0 top-5 hidden size-4 text-primary md:block" />
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Selected projects (Admin → Projects) */}
+      {homeProjects.length > 0 && (
+        <section className="bg-card py-16 md:py-24">
+          <div className={CONTAINER}>
+            <div className="flex items-end justify-between gap-6">
+              <SectionTitle eyebrow={home.projectsEyebrow} title={home.projectsTitle} />
+              <Link to="/projects" className={buttonClass('outline', 'lg', 'mb-10 hidden md:inline-flex')}>
+                {t('home.allProjects')} <ArrowRight />
+              </Link>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {homeProjects.map((project, i) => (
+                <article key={project.id} className={i === 0 && homeProjects.length > 2 ? 'md:row-span-2' : ''}>
+                  <div className="group relative h-full min-h-72 overflow-hidden sm:min-h-80">
+                    <img
+                      src={project.image}
+                      loading="lazy"
+                      alt={project.title}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 to-transparent" />
+                    <div className="absolute bottom-0 p-6 text-background">
+                      <p className="text-xs uppercase tracking-[.14em] text-primary">{project.sector}</p>
+                      <h3 className="mt-2 text-3xl">{project.title}</h3>
+                    </div>
+                  </div>
+                </article>
               ))}
             </div>
-          </>
-        )}
-      </div>
-      <AdBannerSection ads={bottomAds} hideOnMobile />
-      {/* AdPopup temporarily disabled - not reliably showing its image in
-          production (same root cause as ads not showing in the banner rows:
-          media isn't actually landing on Cloudinary there - see the fix
-          summary in this session). Re-enable by uncommenting this and the
-          import above once that's confirmed fixed. */}
-      {/* <AdPopup ads={ads} /> */}
-    </div>
+            <Link to="/projects" className={buttonClass('outline', 'lg', 'mt-8 w-full md:hidden')}>
+              {t('home.allProjects')} <ArrowRight />
+            </Link>
+          </div>
+        </section>
+      )}
+
+      <TeamSection hideWhenEmpty className="" />
+
+      {/* Testimonials (Admin → Testimonials) */}
+      {quote && (
+        <section className="border-t border-border px-5 py-16 md:py-24 lg:px-10">
+          <div className="mx-auto max-w-4xl text-center">
+            <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">{home.testimonialEyebrow}</p>
+            <blockquote className="mt-8 font-display text-3xl leading-tight sm:text-4xl md:text-5xl">“{quote.quote}”</blockquote>
+            <p className="mt-6 text-sm text-muted-foreground">{quote.source}</p>
+            {testimonials.length > 1 && (
+              <div className="mt-8 flex justify-center gap-2">
+                <button
+                  type="button"
+                  className={buttonClass('outline', 'icon', 'h-11 w-11')}
+                  aria-label={t('home.prevTestimonial')}
+                  onClick={() => setTestimonial((i) => (i - 1 + testimonials.length) % testimonials.length)}
+                >
+                  <ChevronLeft />
+                </button>
+                <button
+                  type="button"
+                  className={buttonClass('outline', 'icon', 'h-11 w-11')}
+                  aria-label={t('home.nextTestimonial')}
+                  onClick={() => setTestimonial((i) => (i + 1) % testimonials.length)}
+                >
+                  <ChevronRight />
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      <AdBannerSection ads={ads.filter((a) => a.position === 'home_bottom')} />
+
+      <CtaBand />
+      <ContactSection />
+    </>
   )
 }

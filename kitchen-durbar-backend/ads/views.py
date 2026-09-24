@@ -21,6 +21,8 @@ class AdvertisementViewSet(viewsets.ModelViewSet):
 
     serializer_class = AdvertisementSerializer
     permission_classes = [IsAdminOrReadOnly]
+    # ?position=home_top etc. - lets a page fetch only its own placement.
+    filterset_fields = ['position']
 
     def get_queryset(self):
         user = self.request.user

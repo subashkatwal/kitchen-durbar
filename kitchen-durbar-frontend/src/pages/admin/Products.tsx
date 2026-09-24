@@ -115,7 +115,7 @@ export default function AdminProducts() {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700 }}>Product Management</h2>
+        <h2>Product Management</h2>
         <button className="kd-btn kd-btn-p" style={{ padding: '10px 20px', fontSize: 14 }} onClick={openAdd}>
           + Add Product
         </button>
@@ -139,7 +139,7 @@ export default function AdminProducts() {
                   {p.image ? (
                     <img src={p.image} alt={p.name} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 6 }} />
                   ) : (
-                    <div style={{ width: 40, height: 40, borderRadius: 6, background: 'var(--kb)' }} />
+                    <div style={{ width: 40, height: 40, borderRadius: 6, background: 'var(--muted)' }} />
                   )}
                 </td>
                 <td style={{ fontWeight: 600 }}>{p.name}</td>
@@ -202,7 +202,7 @@ export default function AdminProducts() {
               <img
                 src={imagePreview}
                 alt="Preview"
-                style={{ marginTop: 10, width: 120, height: 90, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--kbd)' }}
+                style={{ marginTop: 10, width: 120, height: 90, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }}
               />
             )}
           </div>

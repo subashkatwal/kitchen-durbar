@@ -18,19 +18,19 @@ const en = {
   'nav.logoutMessage': 'Are you sure you want to log out?',
   'nav.logoutConfirm': 'Log out',
   'nav.logoutSuccess': 'Logged out successfully',
+  'nav.about': 'About',
+  'nav.solutions': 'Solutions',
+  'nav.projects': 'Projects',
+  'nav.services': 'Services',
+  'nav.contact': 'Contact',
+  'nav.requestQuote': 'Request a quote',
+  'nav.language': 'Language',
 
   // --- Footer ---
-  'footer.tagline': 'Premium commercial kitchen appliances made to order in Nepal. Stainless steel equipment built for professional kitchens.',
-  'footer.quickLinks': 'Quick Links',
-  'footer.categories': 'Categories',
-  'footer.burners': 'Burners',
-  'footer.tables': 'Tables',
-  'footer.chillers': 'Chillers',
-  'footer.sinks': 'Sinks',
+  'footer.company': 'Company',
+  'footer.explore': 'Explore',
   'footer.contact': 'Contact',
-  'footer.address': 'Kathmandu, Nepal',
-  'footer.whatsapp': 'WhatsApp: +977 9769400796',
-  'footer.copyright': '© 2026 Kitchen Durbar Solution. All rights reserved.',
+  'footer.whatsapp': 'WhatsApp',
 
   // --- Common ---
   'common.cancel': 'Cancel',
@@ -114,7 +114,6 @@ const en = {
   'verifyOtp.backToSignIn': 'Back to Sign In',
 
   // --- Google sign-in ---
-  'google.notConfigured': "Google sign-in isn't configured yet - set VITE_GOOGLE_CLIENT_ID and GOOGLE_CLIENT_ID in .env to enable it.",
   'google.success': 'Signed in with Google',
   'google.error': 'Google sign-in failed. Please try again.',
 
@@ -164,15 +163,54 @@ const en = {
   'product.addedToCart': 'Added to cart!',
   'product.madeToOrder': '(Made to Order)',
   'product.loadError': 'Could not load this product. Please try again.',
+  'product.viewDetails': 'View details',
+  'product.requestQuote': 'Request a quote',
+  'product.noDescription':
+    'A robust professional unit built for consistent daily output, easy cleaning and dependable service in demanding commercial environments.',
+  'products.all': 'All',
+  'products.searchLabel': 'Search equipment',
+  'products.count': '{n} items',
+  'products.loading': 'Loading equipment...',
 
   // --- Home ---
-  'home.heroTitle': 'Commercial Kitchen Appliances',
-  'home.heroSubtitle': 'Premium stainless steel equipment custom-made to your specifications. Built to order, built to last.',
-  'home.heroExtra':
-    'Alongside stainless steel work, Kitchen Durbar also provides gas pipeline installation, entire kitchen servicing, chimney, and ducting services.',
-  'home.getStarted': 'Get Started',
-  'home.browseByCategory': 'Browse by Category',
-  'home.featuredProducts': 'Featured Products',
+  'home.exploreEquipment': 'Explore equipment',
+  'home.ourCompany': 'Our company',
+  'home.allProjects': 'All projects',
+  'home.viewCatalogue': 'View full catalogue',
+  'home.prevTestimonial': 'Previous testimonial',
+  'home.nextTestimonial': 'Next testimonial',
+
+  // --- Contact form ---
+  'contactForm.name': 'Name',
+  'contactForm.company': 'Company',
+  'contactForm.phone': 'Phone',
+  'contactForm.email': 'Email',
+  'contactForm.details': 'Project details',
+  'contactForm.detailsPlaceholder': 'Tell us about your kitchen, capacity and timeline.',
+  'contactForm.submit': 'Send enquiry',
+  'contactForm.sending': 'Sending...',
+  'contactForm.success': 'Thank you - your enquiry has been sent. We’ll be in touch shortly.',
+  'contactForm.error': 'Could not send your enquiry. Please try again.',
+  'contactForm.required': 'Please fill in your name, phone, email and project details.',
+
+  // --- Cart (redesign extras) ---
+  'cart.eyebrow': 'Your order',
+  'cart.continueShopping': 'Continue shopping',
+  'cart.each': 'each',
+  'cart.increase': 'Increase quantity',
+  'cart.decrease': 'Decrease quantity',
+  'cart.whatsappNote': 'Placing an order opens WhatsApp with your order details so our team can confirm it with you.',
+
+  // --- Checkout confirmation (redesign extras) ---
+  'checkout.eyebrow': 'Order placed',
+  'checkout.orderId': 'Order',
+
+  // --- Auth pages ---
+  'auth.eyebrow': 'Customer account',
+
+  // --- 404 ---
+  'notFound.title': 'This page has moved or never existed.',
+  'notFound.back': 'Back to home',
 
   // --- Ads ---
   'ad.label': 'Advertisement',
@@ -186,6 +224,14 @@ const en = {
   'admin.users': 'Users',
   'admin.orders': 'Orders',
   'admin.backToStore': 'Back to Store',
+  'admin.team': 'Team',
+  'admin.enquiries': 'Enquiries',
+  'admin.panel': 'Admin panel',
+  'admin.website': 'Website content',
+  'admin.accounts': 'Accounts',
+  'admin.siteImages': 'Site Images',
+  'admin.projects': 'Projects',
+  'admin.testimonials': 'Testimonials',
 } as const
 
 export type TranslationKey = keyof typeof en
