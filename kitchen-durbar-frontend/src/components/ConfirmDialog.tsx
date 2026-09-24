@@ -17,7 +17,7 @@ export default function ConfirmDialog({ open, title, message, confirmLabel, canc
     <div className={`kd-mo${open ? ' active' : ''}`}>
       <div className="kd-md" style={{ maxWidth: 360 }}>
         <h3>{title ?? t('common.confirm')}</h3>
-        <p style={{ marginBottom: 24, color: 'var(--ktm)' }}>{message}</p>
+        <p style={{ marginBottom: 24, color: 'var(--muted-foreground)' }}>{message}</p>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <button className="kd-btn kd-btn-o" style={{ padding: '10px 20px', fontSize: 14 }} onClick={onCancel}>
             {cancelLabel ?? t('common.cancel')}

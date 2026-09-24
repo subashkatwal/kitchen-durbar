@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiErrorMessage } from '../api/client'
+import AuthShell from '../components/AuthShell'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { useToast } from '../context/ToastContext'
@@ -37,7 +38,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="kd-pg active">
+    <AuthShell>
       <form className="kd-a" onSubmit={handleSubmit}>
         <h2>{t('forgotPassword.title')}</h2>
         <p className="kd-a-sub">{t('forgotPassword.subtitle')}</p>
@@ -59,6 +60,6 @@ export default function ForgotPassword() {
           {t('forgotPassword.remembered')} <Link to="/login">{t('forgotPassword.signIn')}</Link>
         </div>
       </form>
-    </div>
+    </AuthShell>
   )
 }

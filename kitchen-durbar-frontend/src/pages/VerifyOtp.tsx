@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { apiErrorMessage } from '../api/client'
+import AuthShell from '../components/AuthShell'
 import { useAuth } from '../context/AuthContext'
 import { useLanguage } from '../context/LanguageContext'
 import { useToast } from '../context/ToastContext'
@@ -34,7 +35,7 @@ export default function VerifyOtp() {
 
   if (!email) {
     return (
-      <div className="kd-pg active">
+      <AuthShell>
         <div className="kd-a">
           <h2>{t('verifyOtp.invalidTitle')}</h2>
           <p className="kd-a-sub">{t('verifyOtp.invalidSubtitle')}</p>
@@ -42,7 +43,7 @@ export default function VerifyOtp() {
             <Link to={purpose === 'reset' ? '/forgot-password' : '/register'}>{t('verifyOtp.goBack')}</Link>
           </div>
         </div>
-      </div>
+      </AuthShell>
     )
   }
 
@@ -113,7 +114,7 @@ export default function VerifyOtp() {
   }
 
   return (
-    <div className="kd-pg active">
+    <AuthShell>
       <form className="kd-a" onSubmit={step === 'code' ? handleVerifyCode : handleSetNewPassword}>
         <h2>{purpose === 'signup' ? t('verifyOtp.signupTitle') : t('verifyOtp.resetTitle')}</h2>
         <p className="kd-a-sub">
@@ -190,6 +191,6 @@ export default function VerifyOtp() {
           <Link to="/login">{t('verifyOtp.backToSignIn')}</Link>
         </div>
       </form>
-    </div>
+    </AuthShell>
   )
 }

@@ -16,18 +16,19 @@ const ne: Record<TranslationKey, string> = {
   'nav.logoutConfirm': 'लगआउट गर्नुहोस्',
   'nav.logoutSuccess': 'सफलतापूर्वक लगआउट भयो',
 
+  'nav.about': 'हाम्रो बारेमा',
+  'nav.solutions': 'समाधान',
+  'nav.projects': 'परियोजना',
+  'nav.services': 'सेवाहरू',
+  'nav.contact': 'सम्पर्क',
+  'nav.requestQuote': 'कोटेसन माग्नुहोस्',
+  'nav.language': 'भाषा',
+
   // --- Footer ---
-  'footer.tagline': 'नेपालमा अर्डरमा बनाइने उच्च गुणस्तरीय व्यावसायिक भान्सा उपकरणहरू। व्यावसायिक भान्साका लागि बनाइएको स्टेनलेस स्टिल उपकरण।',
-  'footer.quickLinks': 'द्रुत लिङ्कहरू',
-  'footer.categories': 'श्रेणीहरू',
-  'footer.burners': 'बर्नरहरू',
-  'footer.tables': 'टेबलहरू',
-  'footer.chillers': 'चिलरहरू',
-  'footer.sinks': 'सिंकहरू',
+  'footer.company': 'कम्पनी',
+  'footer.explore': 'हेर्नुहोस्',
   'footer.contact': 'सम्पर्क',
-  'footer.address': 'काठमाडौं, नेपाल',
-  'footer.whatsapp': 'WhatsApp: +977 9769400796',
-  'footer.copyright': '© २०२६ किचन दरबार सोलुसन। सर्वाधिकार सुरक्षित।',
+  'footer.whatsapp': 'WhatsApp',
 
   // --- Common ---
   'common.cancel': 'रद्द गर्नुहोस्',
@@ -111,7 +112,6 @@ const ne: Record<TranslationKey, string> = {
   'verifyOtp.backToSignIn': 'साइन इनमा फर्कनुहोस्',
 
   // --- Google sign-in ---
-  'google.notConfigured': 'गुगल साइन-इन अझै कन्फिगर गरिएको छैन - सक्षम गर्न .env मा VITE_GOOGLE_CLIENT_ID र GOOGLE_CLIENT_ID सेट गर्नुहोस्।',
   'google.success': 'गुगलबाट साइन इन भयो',
   'google.error': 'गुगल साइन-इन असफल भयो। कृपया फेरि प्रयास गर्नुहोस्।',
 
@@ -161,15 +161,54 @@ const ne: Record<TranslationKey, string> = {
   'product.addedToCart': 'कार्टमा थपियो!',
   'product.madeToOrder': '(अर्डरमा बनाइने)',
   'product.loadError': 'यो उत्पादन लोड गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।',
+  'product.viewDetails': 'विवरण हेर्नुहोस्',
+  'product.requestQuote': 'कोटेसन माग्नुहोस्',
+  'product.noDescription':
+    'कठिन व्यावसायिक वातावरणमा दैनिक स्थिर उत्पादन, सजिलो सफाइ र भरपर्दो सेवाका लागि बनाइएको बलियो व्यावसायिक उपकरण।',
+  'products.all': 'सबै',
+  'products.searchLabel': 'उपकरण खोज्नुहोस्',
+  'products.count': '{n} वटा',
+  'products.loading': 'उपकरण लोड हुँदैछ...',
 
   // --- Home ---
-  'home.heroTitle': 'व्यावसायिक भान्सा उपकरणहरू',
-  'home.heroSubtitle': 'तपाईंको आवश्यकता अनुसार बनाइएको उच्च गुणस्तरीय स्टेनलेस स्टिल उपकरण। अर्डरमा बनाइने, टिकाउका लागि बनाइएको।',
-  'home.heroExtra':
-    'किचन दरबारले स्टेनलेस स्टिलको साथसाथै ग्यास पाइपलाइन सुविधा, सम्पूर्ण किचन सर्भिसिङ, चिम्नी र डक्टिङ पनि प्रदान गर्दछ।',
-  'home.getStarted': 'सुरु गर्नुहोस्',
-  'home.browseByCategory': 'श्रेणी अनुसार हेर्नुहोस्',
-  'home.featuredProducts': 'विशेष उत्पादनहरू',
+  'home.exploreEquipment': 'उपकरण हेर्नुहोस्',
+  'home.ourCompany': 'हाम्रो कम्पनी',
+  'home.allProjects': 'सबै परियोजना',
+  'home.viewCatalogue': 'पूरा सूची हेर्नुहोस्',
+  'home.prevTestimonial': 'अघिल्लो प्रतिक्रिया',
+  'home.nextTestimonial': 'अर्को प्रतिक्रिया',
+
+  // --- Contact form ---
+  'contactForm.name': 'नाम',
+  'contactForm.company': 'कम्पनी',
+  'contactForm.phone': 'फोन',
+  'contactForm.email': 'इमेल',
+  'contactForm.details': 'परियोजना विवरण',
+  'contactForm.detailsPlaceholder': 'आफ्नो भान्सा, क्षमता र समयसीमाबारे बताउनुहोस्।',
+  'contactForm.submit': 'सोधपुछ पठाउनुहोस्',
+  'contactForm.sending': 'पठाइँदैछ...',
+  'contactForm.success': 'धन्यवाद - तपाईंको सोधपुछ पठाइयो। हामी छिट्टै सम्पर्क गर्नेछौं।',
+  'contactForm.error': 'सोधपुछ पठाउन सकिएन। कृपया फेरि प्रयास गर्नुहोस्।',
+  'contactForm.required': 'कृपया नाम, फोन, इमेल र परियोजना विवरण भर्नुहोस्।',
+
+  // --- Cart (redesign extras) ---
+  'cart.eyebrow': 'तपाईंको अर्डर',
+  'cart.continueShopping': 'किनमेल जारी राख्नुहोस्',
+  'cart.each': 'प्रति थान',
+  'cart.increase': 'परिमाण बढाउनुहोस्',
+  'cart.decrease': 'परिमाण घटाउनुहोस्',
+  'cart.whatsappNote': 'अर्डर राख्दा हाम्रो टोलीले पुष्टि गर्न सकोस् भनेर अर्डर विवरणसहित WhatsApp खुल्छ।',
+
+  // --- Checkout confirmation (redesign extras) ---
+  'checkout.eyebrow': 'अर्डर राखियो',
+  'checkout.orderId': 'अर्डर',
+
+  // --- Auth pages ---
+  'auth.eyebrow': 'ग्राहक खाता',
+
+  // --- 404 ---
+  'notFound.title': 'यो पृष्ठ सारिएको छ वा अवस्थित छैन।',
+  'notFound.back': 'गृहपृष्ठमा फर्कनुहोस्',
 
   // --- Ads ---
   'ad.label': 'विज्ञापन',
@@ -183,6 +222,14 @@ const ne: Record<TranslationKey, string> = {
   'admin.users': 'प्रयोगकर्ताहरू',
   'admin.orders': 'अर्डरहरू',
   'admin.backToStore': 'पसलमा फर्कनुहोस्',
+  'admin.team': 'टोली',
+  'admin.enquiries': 'सोधपुछ',
+  'admin.panel': 'एडमिन प्यानल',
+  'admin.website': 'वेबसाइट सामग्री',
+  'admin.accounts': 'खाताहरू',
+  'admin.siteImages': 'साइट तस्बिरहरू',
+  'admin.projects': 'परियोजनाहरू',
+  'admin.testimonials': 'प्रतिक्रियाहरू',
 }
 
 export default ne

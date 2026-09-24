@@ -1,39 +1,21 @@
 import { useEffect, useState } from 'react'
+import { useLanguage } from '../context/LanguageContext'
 import type { Advertisement } from '../types'
 
 /**
- * One reusable ad row. Home.tsx renders this twice - once with the first two
- * ads directly above the main content, once with the next two directly below
- * it - so each instance shows up to 2 ads side by side, not a 2x2 grid.
- * Takes its ads as a prop (already fetched once by Home.tsx) rather than
- * fetching them itself - no duplicate network calls.
+ * One ad placement (Admin → Ads → "Placement"). Pages pass in the ads for
+ * their placement, already filtered and ordered by priority.
  *
- * Desktop/tablet: up to 2 ads side by side (equal-width columns). Each image
- * keeps its own natural aspect ratio - no cropping, no forced square/box, so
- * arbitrary banner shapes never distort. A lone ad (e.g. only 1 of the 2
- * slots filled) spans the full row instead of leaving an empty column.
- * Mobile: the page only ever shows a single banner total, directly above the
- * content - the top row becomes a one-at-a-time auto-rotating carousel via
- * `hideOnMobile=false` (the default), while the bottom row is hidden
- * entirely on mobile via `hideOnMobile=true` (see index.css).
+ * Desktop/tablet: two per row. Each image keeps its own natural aspect ratio
+ * (no cropping); an odd one out spans the full row instead of leaving an
+ * empty column. Phones: one at a time, auto-rotating every 5s, with dots.
  *
- * Renders nothing at all when there are no ads - no placeholder box, so
- * neighboring content never has empty space reserved around it. An ad whose
- * image URL 404s/fails to load is dropped from the layout the moment that
- * happens (see `failedIds`), so a broken image never sits there as an empty
- * bordered box either - and if every ad in this row fails, the whole row
- * collapses just like the no-ads case.
+ * Renders nothing at all when there are no ads - no placeholder box. An ad
+ * whose image fails to load is dropped the moment that happens, so a broken
+ * image never sits there as an empty bordered box either.
  */
-export default function AdBannerSection({
-  ads,
-  hideOnMobile = false,
-}: {
-  ads: Advertisement[]
-  /** Hide this row entirely on mobile instead of showing it as a carousel -
-   * used for the row below the content, since mobile shows only one banner
-   * total (above the content). */
-  hideOnMobile?: boolean
-}) {
+export default function AdBannerSection({ ads }: { ads: Advertisement[] }) {
+  const { t } = useLanguage()
   const [active, setActive] = useState(0)
   const [failedIds, setFailedIds] = useState<Set<string>>(new Set())
 
@@ -47,10 +29,7 @@ export default function AdBannerSection({
 
   if (!visibleAds.length) return null
 
-  // A lone ad (odd count out of this row's up-to-2 slots) spans both
-  // columns instead of leaving a visibly empty cell next to it.
   const lastIsAlone = visibleAds.length % 2 === 1
-  // Clamp in case ads failed since the last render and shrank the list.
   const safeActive = active % visibleAds.length
 
   function renderBanner(ad: Advertisement, spanFull = false) {
@@ -59,7 +38,7 @@ export default function AdBannerSection({
       <Tag
         key={ad.id}
         className={`kd-promo-banner-item${spanFull ? ' span-2' : ''}`}
-        {...(ad.link_url ? { href: ad.link_url, target: '_blank', rel: 'noreferrer' } : {})}
+        {...(ad.link_url ? { href: ad.link_url, target: '_blank', rel: 'noreferrer sponsored' } : {})}
       >
         <img
           src={ad.image}
@@ -72,11 +51,27 @@ export default function AdBannerSection({
   }
 
   return (
-    <div className={`kd-promo-banner-section${hideOnMobile ? ' kd-promo-banner-section--desktop-only' : ''}`}>
+    <aside className="kd-promo-banner-section" aria-label={t('ad.label')}>
+      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{t('ad.label')}</p>
       <div className="kd-promo-banner-grid">
         {visibleAds.map((ad, i) => renderBanner(ad, lastIsAlone && i === visibleAds.length - 1))}
       </div>
-      {!hideOnMobile && <div className="kd-promo-banner-carousel">{renderBanner(visibleAds[safeActive])}</div>}
-    </div>
+      <div className="kd-promo-banner-carousel">
+        {renderBanner(visibleAds[safeActive])}
+        {visibleAds.length > 1 && (
+          <div className="mt-3 flex justify-center gap-2">
+            {visibleAds.map((ad, i) => (
+              <button
+                key={ad.id}
+                type="button"
+                aria-label={`${i + 1} / ${visibleAds.length}`}
+                onClick={() => setActive(i)}
+                className={`h-2 rounded-full transition-all ${i === safeActive ? 'w-6 bg-primary' : 'w-2 bg-border'}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </aside>
   )
 }

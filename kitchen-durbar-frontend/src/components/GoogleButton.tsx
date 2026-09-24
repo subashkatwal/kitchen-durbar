@@ -21,6 +21,10 @@ declare global {
 }
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined
+
+/** Whether Google sign-in is configured for this build - pages hide the
+ * button (and its "or" divider) entirely when it isn't. */
+export const GOOGLE_ENABLED = Boolean(CLIENT_ID)
 const SCRIPT_ID = 'kd-google-gsi-script'
 
 /**
@@ -35,8 +39,7 @@ const SCRIPT_ID = 'kd-google-gsi-script'
  * button's own text (e.g. "Sign in with Google") using the browser's locale,
  * which can silently disagree with the language the user picked on the site.
  *
- * Until VITE_GOOGLE_CLIENT_ID is set (real credentials uploaded later), this
- * renders a quiet placeholder instead of a broken button.
+ * Until VITE_GOOGLE_CLIENT_ID is set, this renders nothing (see GOOGLE_ENABLED).
  */
 export default function GoogleButton() {
   const { loginWithGoogle } = useAuth()
@@ -68,7 +71,8 @@ export default function GoogleButton() {
         theme: 'outline',
         size: 'large',
         text: 'continue_with',
-        width: 320,
+        // GSI accepts 200-400px; fit the form so it never overflows small phones.
+        width: Math.max(200, Math.min(400, containerRef.current.offsetWidth || 320)),
         locale: language,
       })
     }
@@ -100,25 +104,14 @@ export default function GoogleButton() {
     }
   }, [language, loginWithGoogle, navigate, t, toast])
 
-  if (!CLIENT_ID) {
-    return (
-      <div className="kd-gsi-placeholder">
-        {t('google.notConfigured')
-          .split(/(VITE_GOOGLE_CLIENT_ID|GOOGLE_CLIENT_ID|\.env)/)
-          .map((part, i) =>
-            part === 'VITE_GOOGLE_CLIENT_ID' || part === 'GOOGLE_CLIENT_ID' || part === '.env' ? (
-              <code key={i}>{part}</code>
-            ) : (
-              part
-            ),
-          )}
-      </div>
-    )
-  }
+  // Not configured: render nothing rather than a developer-facing notice -
+  // customers shouldn't see setup instructions. Set VITE_GOOGLE_CLIENT_ID
+  // (same value as the backend's GOOGLE_CLIENT_ID) to enable the button.
+  if (!CLIENT_ID) return null
 
   return (
     <div className="kd-gsi">
-      <div ref={containerRef} />
+      <div ref={containerRef} style={{ width: '100%', display: 'flex', justifyContent: 'center' }} />
     </div>
   )
 }
