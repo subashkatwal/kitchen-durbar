@@ -46,7 +46,7 @@ export default function AdminOrders() {
 
   return (
     <div>
-      <h2 style={{ marginBottom: 20, fontSize: 22, fontWeight: 700 }}>Order Management</h2>
+      <h2 style={{ marginBottom: 20 }}>Order Management</h2>
       <div style={{ overflowX: 'auto' }}>
         <table className="kd-tb2">
           <thead>
@@ -64,7 +64,7 @@ export default function AdminOrders() {
           <tbody>
             {orders.length === 0 && (
               <tr>
-                <td colSpan={8} style={{ textAlign: 'center', color: 'var(--ktm)', padding: 20 }}>
+                <td colSpan={8} style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: 20 }}>
                   No orders yet
                 </td>
               </tr>
@@ -74,7 +74,7 @@ export default function AdminOrders() {
                 <td style={{ fontWeight: 600 }}>#{o.id.slice(0, 8)}</td>
                 <td>{o.user_name || o.user_email}</td>
                 <td>{o.items.length} items</td>
-                <td>{Number(o.discount) > 0 ? `-NPR ${Number(o.discount).toLocaleString()}` : '—'}</td>
+                <td>{Number(o.discount) > 0 ? `-NPR ${Number(o.discount).toLocaleString()}` : '-'}</td>
                 <td style={{ fontWeight: 700 }}>NPR {Number(o.total).toLocaleString()}</td>
                 <td>
                   <select className="kd-stsel" value={o.status} onChange={(e) => updateStatus(o, e.target.value as OrderStatus)}>

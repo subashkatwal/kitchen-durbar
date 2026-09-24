@@ -64,7 +64,7 @@ export default function AdminUsers() {
 
   return (
     <div>
-      <h2 style={{ marginBottom: 20, fontSize: 22, fontWeight: 700 }}>User Management</h2>
+      <h2 style={{ marginBottom: 20 }}>User Management</h2>
       <div style={{ overflowX: 'auto' }}>
         <table className="kd-tb2">
           <thead>
