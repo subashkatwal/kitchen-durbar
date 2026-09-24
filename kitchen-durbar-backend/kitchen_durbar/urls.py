@@ -34,11 +34,15 @@ urlpatterns = [
     path('api/v1/otp/verify', VerifyOTPView.as_view(), name='otp-verify'),
     path('api/v1/password-reset/confirm', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 
-    # Users / Products / Orders / Ads (DRF routers, trailing_slash=False)
+    # Users / Products / Orders / Ads / Team / Enquiries / CMS content
+    # (DRF routers, trailing_slash=False)
     path('api/v1/', include('users.urls')),
     path('api/v1/', include('products.urls')),
     path('api/v1/', include('orders.urls')),
     path('api/v1/', include('ads.urls')),
+    path('api/v1/', include('team.urls')),
+    path('api/v1/', include('enquiries.urls')),
+    path('api/v1/', include('cms.urls')),
 
     # API docs
     path('api/v1/schema', SpectacularAPIView.as_view(), name='schema'),

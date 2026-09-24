@@ -62,6 +62,9 @@ INSTALLED_APPS = [
     'products',
     'orders',
     'ads',
+    'team',
+    'enquiries',
+    'cms',
 ]
 
 
@@ -405,4 +408,13 @@ OTP_EXPIRY_MINUTES = env.int(
     'OTP_EXPIRY_MINUTES',
     default=10
 )
+
+
+# ---------------------------------------------------------------------------
+# Contact form enquiries
+# ---------------------------------------------------------------------------
+
+# Where "new enquiry" notifications are emailed. Leave blank to skip the
+# email - enquiries are always saved and visible under Admin → Enquiries.
+ENQUIRY_NOTIFY_EMAIL = env('ENQUIRY_NOTIFY_EMAIL', default='')
 
