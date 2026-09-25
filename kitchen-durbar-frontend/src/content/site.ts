@@ -83,6 +83,12 @@ export interface SiteContent {
     stats: Pair[]
     sinceValue: string
     sinceLabel: string
+    showcaseBadge: string
+    showcaseEyebrow: string
+    showcaseTitle: string
+    showcaseCopy: string
+    showcasePoints: string[]
+    showcaseCta: string
     approachEyebrow: string
     approachTitle: string
     approachCopy: string
@@ -202,6 +208,13 @@ const en: SiteContent = {
     ],
     sinceValue: 'Since 2017',
     sinceLabel: 'Hospitality expertise',
+    showcaseBadge: 'First company to make it',
+    showcaseEyebrow: 'Signature build',
+    showcaseTitle: 'The 360° circular kitchen station.',
+    showcaseCopy:
+      'A full ring of stainless steel that puts prep, refrigeration, washing and service within arm’s reach of every chef. Kitchen Durbar Solutions is the first company to design, fabricate and install it.',
+    showcasePoints: ['Fully custom stainless-steel fabrication', 'Built-in under-counter refrigeration', 'Integrated sinks and GN pan wells', 'Walk-in centre for one-step workflow'],
+    showcaseCta: 'Get one for your kitchen',
     approachEyebrow: 'Our approach',
     approachTitle: 'Complete kitchen solutions, from planning to installation.',
     approachCopy:
@@ -369,6 +382,13 @@ const ne: SiteContent = {
     ],
     sinceValue: '२०१७ देखि',
     sinceLabel: 'आतिथ्य क्षेत्रको अनुभव',
+    showcaseBadge: 'यो बनाउने पहिलो कम्पनी',
+    showcaseEyebrow: 'हाम्रो विशेष निर्माण',
+    showcaseTitle: '३६०° गोलाकार किचन स्टेशन।',
+    showcaseCopy:
+      'स्टेनलेस स्टीलको पूर्ण गोलाकार स्टेशन, जहाँ तयारी, फ्रिज, धुने र सेवा सबै शेफको हातैको पहुँचमा हुन्छ। किचन दरबार सोलुसन्स यसलाई डिजाइन, निर्माण र जडान गर्ने पहिलो कम्पनी हो।',
+    showcasePoints: ['पूर्ण कस्टम स्टेनलेस स्टील निर्माण', 'काउन्टरमुनि जडित फ्रिज', 'एकीकृत सिंक र GN प्यान', 'एकै ठाउँबाट काम गर्ने बीचको खुला भाग'],
+    showcaseCta: 'तपाईंको भान्साका लागि माग्नुहोस्',
     approachEyebrow: 'हाम्रो तरिका',
     approachTitle: 'योजनादेखि जडानसम्म, पूर्ण भान्सा समाधान।',
     approachCopy:

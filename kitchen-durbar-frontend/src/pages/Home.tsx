@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight, Check, ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Award, Check, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
@@ -108,6 +108,65 @@ export default function Home() {
           ))}
         </div>
         */}
+      </section>
+
+      {/* Signature build - 360° circular station (images in /public) */}
+      <section id="signature" className="relative scroll-mt-20 overflow-hidden bg-foreground py-16 text-background md:py-24 lg:py-28">
+        <div className="pointer-events-none absolute -right-40 -top-40 size-[34rem] rounded-full bg-primary/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-48 -left-40 size-[28rem] rounded-full bg-primary/10 blur-3xl" />
+        <div className={`relative grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-14 ${CONTAINER}`}>
+          <div className="lg:col-span-5">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/50 bg-primary/15 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-primary">
+              <Award className="size-4 shrink-0" />
+              {home.showcaseBadge}
+            </span>
+            <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-background/50">{home.showcaseEyebrow}</p>
+            <h2 className="mt-4 text-[2.25rem] leading-[1.05] sm:text-5xl md:text-6xl">{home.showcaseTitle}</h2>
+            <p className="mt-6 max-w-xl leading-8 text-background/70">{home.showcaseCopy}</p>
+            <ul className="mt-8 grid gap-4 text-sm font-bold sm:grid-cols-2">
+              {home.showcasePoints.map((point) => (
+                <li key={point} className="flex items-start gap-2">
+                  <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                  {point}
+                </li>
+              ))}
+            </ul>
+            <Link to="/contact" className={buttonClass('brass', 'lg', 'mt-10 w-full sm:w-auto')}>
+              {home.showcaseCta} <ArrowRight />
+            </Link>
+          </div>
+
+          <div className="relative lg:col-span-7">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 lg:grid-rows-2">
+              <figure className="group relative col-span-2 aspect-[4/3] overflow-hidden bg-background/5 lg:row-span-2 lg:aspect-auto lg:min-h-[30rem]">
+                <img
+                  src="/second.jpeg"
+                  alt="360° circular stainless-steel kitchen station by Kitchen Durbar Solutions"
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </figure>
+              {[
+                ['/first.jpeg', 'Circular station with built-in under-counter refrigeration'],
+                ['/third.jpeg', 'Top view of the circular kitchen station'],
+              ].map(([src, alt]) => (
+                <figure key={src} className="group relative aspect-square overflow-hidden bg-background/5 lg:aspect-auto">
+                  <img
+                    src={src}
+                    alt={alt}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                </figure>
+              ))}
+            </div>
+            {/* "1st" seal */}
+            <div className="absolute -top-5 left-3 flex size-24 flex-col items-center justify-center rounded-full bg-primary text-primary-foreground shadow-2xl ring-4 ring-foreground sm:size-28 lg:-left-8 lg:-top-8 lg:size-32">
+              <Award className="size-5 sm:size-6" />
+              <b className="mt-1 font-display text-3xl font-normal leading-none sm:text-4xl">1st</b>
+            </div>
+          </div>
+        </div>
       </section>
 
       <AdBannerSection ads={ads.filter((a) => a.position === 'home_top')} />
@@ -277,7 +336,7 @@ export default function Home() {
           <div className={CONTAINER}>
             <div className="flex items-end justify-between gap-6">
               <SectionTitle eyebrow={home.projectsEyebrow} title={home.projectsTitle} />
-              <Link to="/projects" className={buttonClass('outline', 'lg', 'mb-10 hidden md:inline-flex')}>
+              <Link to="/projects" className={buttonClass('outline', 'lg', 'mb-10 max-md:hidden')}>
                 {t('home.allProjects')} <ArrowRight />
               </Link>
             </div>

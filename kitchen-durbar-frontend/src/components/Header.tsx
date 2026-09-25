@@ -88,14 +88,14 @@ export default function Header() {
           <div className="hidden sm:block">{languageToggle}</div>
 
           {user?.is_staff && (
-            <Link to="/admin" className={`${ICON_BUTTON} hidden sm:inline-flex`} aria-label={t('nav.admin')} title={t('nav.admin')}>
+            <Link to="/admin" className={`${ICON_BUTTON} max-sm:hidden`} aria-label={t('nav.admin')} title={t('nav.admin')}>
               <LayoutDashboard />
             </Link>
           )}
           {user ? (
             <button
               type="button"
-              className={`${ICON_BUTTON} hidden sm:inline-flex`}
+              className={`${ICON_BUTTON} max-sm:hidden`}
               onClick={() => setLogoutOpen(true)}
               aria-label={t('nav.logout')}
               title={t('nav.logout')}
@@ -103,7 +103,7 @@ export default function Header() {
               <LogOut />
             </button>
           ) : (
-            <Link to="/login" className={`${ICON_BUTTON} hidden sm:inline-flex`} aria-label={t('nav.login')} title={t('nav.login')}>
+            <Link to="/login" className={`${ICON_BUTTON} max-sm:hidden`} aria-label={t('nav.login')} title={t('nav.login')}>
               <User />
             </Link>
           )}
@@ -125,7 +125,7 @@ export default function Header() {
             </span>
           </Link>
 
-          <Link to="/contact" className={buttonClass('brass', 'lg', 'ml-2 hidden 2xl:inline-flex')}>
+          <Link to="/contact" className={buttonClass('brass', 'lg', 'ml-2 max-2xl:hidden')}>
             {t('nav.requestQuote')} <ArrowRight />
           </Link>
 
