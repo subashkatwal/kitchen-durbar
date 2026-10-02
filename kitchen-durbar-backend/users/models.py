@@ -38,6 +38,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     def role(self):
         return 'admin' if self.is_staff else 'user'
 
+    # Admins get full CRUD in Django admin too, not just superusers - so
+    # someone promoted via "Make admin" isn't left with no model permissions.
+    def has_perm(self, perm, obj=None):
+        if self.is_active and self.is_staff:
+            return True
+        return super().has_perm(perm, obj)
+
+    def has_module_perms(self, app_label):
+        if self.is_active and self.is_staff:
+            return True
+        return super().has_module_perms(app_label)
+
 
 def generate_otp_code():
     return f'{random.randint(0, 999999):06d}'
