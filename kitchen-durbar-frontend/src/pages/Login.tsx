@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { apiErrorMessage } from '../api/client'
 import AuthShell from '../components/AuthShell'
 import GoogleButton, { GOOGLE_ENABLED } from '../components/GoogleButton'
@@ -12,7 +12,10 @@ export default function Login() {
   const navigate = useNavigate()
   const toast = useToast()
   const { t } = useLanguage()
-  const [email, setEmail] = useState('')
+  const [searchParams] = useSearchParams()
+  // Prefilled when arriving from registration (/login?email=...).
+  const prefilledEmail = searchParams.get('email') || ''
+  const [email, setEmail] = useState(prefilledEmail)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -56,6 +59,7 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoFocus={Boolean(prefilledEmail)}
           />
         </div>
         <div className="kd-as" style={{ marginTop: -8, marginBottom: 18, textAlign: 'right' }}>

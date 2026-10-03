@@ -63,7 +63,7 @@ const ne: Record<TranslationKey, string> = {
   'register.phone': 'फोन',
   'register.creating': 'खाता खोलिँदैछ...',
   'register.submit': 'खाता खोल्नुहोस्',
-  'register.success': 'खाता खोलियो! भेरिफिकेसन कोडको लागि आफ्नो इमेल जाँच गर्नुहोस्।',
+  'register.success': 'खाता खोलियो! कृपया साइन इन गर्नुहोस्।',
   'register.error': 'खाता खोल्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।',
   'register.haveAccount': 'पहिले नै खाता छ?',
   'register.signIn': 'साइन इन',

@@ -65,7 +65,7 @@ const en = {
   'register.phone': 'Phone',
   'register.creating': 'Creating Account...',
   'register.submit': 'Create Account',
-  'register.success': 'Account created! Check your email for a verification code.',
+  'register.success': 'Account created! Please sign in.',
   'register.error': 'Could not create your account. Please try again.',
   'register.haveAccount': 'Already have an account?',
   'register.signIn': 'Sign In',
