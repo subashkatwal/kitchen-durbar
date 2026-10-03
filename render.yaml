@@ -86,6 +86,11 @@ services:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         sync: false
+      # Render's free plan blocks outbound SMTP, so the EMAIL_* settings above
+      # can't connect there. Set a Brevo API key to send OTP emails over HTTPS
+      # instead (DEFAULT_FROM_EMAIL must be a verified sender in Brevo).
+      - key: BREVO_API_KEY
+        sync: false
       - key: OTP_EXPIRY_MINUTES
         value: "10"
       # Product image uploads. /app/media inside the container is ephemeral

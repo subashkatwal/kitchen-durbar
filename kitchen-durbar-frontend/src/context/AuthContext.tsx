@@ -14,7 +14,7 @@ interface AuthContextValue {
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   loginWithGoogle: (credential: string) => Promise<void>
-  register: (payload: RegisterPayload) => Promise<void>
+  register: (payload: RegisterPayload) => Promise<boolean>
   requestOtp: (email: string, purpose: OTPPurpose) => Promise<void>
   verifySignupOtp: (email: string, code: string) => Promise<void>
   verifyResetOtp: (email: string, code: string) => Promise<void>
@@ -57,8 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function register(payload: RegisterPayload) {
     // Create the account only - do NOT authenticate here. The user is only
     // considered signed in after an explicit login (see login() above).
-    // Registering also emails a signup-verification OTP server-side.
-    await api.post('/register', payload)
+    // Registering also emails a signup-verification OTP server-side; returns
+    // whether that email actually went out.
+    const { data } = await api.post('/register', payload)
+    return data.otp_sent !== false
   }
 
   async function requestOtp(email: string, purpose: OTPPurpose) {

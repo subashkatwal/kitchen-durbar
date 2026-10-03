@@ -57,7 +57,7 @@ export default function GoogleButton() {
       try {
         await loginWithGoogle(res.credential)
         toast(t('google.success'))
-        navigate('/')
+        navigate('/products')
       } catch (err) {
         toast(apiErrorMessage(err, t('google.error')))
       }

@@ -61,7 +61,7 @@ export default function VerifyOtp() {
       if (purpose === 'signup') {
         await verifySignupOtp(email, code.trim())
         toast(t('verifyOtp.signupSuccess'))
-        navigate('/')
+        navigate('/products')
       } else {
         await verifyResetOtp(email, code.trim())
         setStep('password')
