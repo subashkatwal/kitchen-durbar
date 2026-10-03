@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, apiErrorMessage } from '../../api/client'
+import { compressImage } from '../../lib/image'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { useToast } from '../../context/ToastContext'
 import Select from '../../components/Select'
@@ -107,7 +108,7 @@ export default function AdminAds() {
         if (startDate) body.append('start_date', startDate)
         if (endDate) body.append('end_date', endDate)
         body.append('priority', form.priority || '0')
-        body.append('image', imageFile)
+        body.append('image', await compressImage(imageFile))
       } else {
         body = {
           title: form.title.trim(),

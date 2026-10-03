@@ -1,10 +1,11 @@
 import logging
 
 from django.conf import settings
-from django.core.mail import send_mail
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
+
+from users.emails import send_email
 
 from .models import Enquiry
 from .serializers import EnquiryAdminUpdateSerializer, EnquirySerializer
@@ -35,7 +36,7 @@ def notify_staff(enquiry):
         f'{enquiry.message}\n'
     )
     try:
-        send_mail(f'New enquiry: {enquiry.name}', message, settings.DEFAULT_FROM_EMAIL, [recipient])
+        send_email(f'New enquiry: {enquiry.name}', message, recipient)
     except Exception:  # noqa: BLE001 - logged, never surfaced to the visitor
         logger.exception('Could not send enquiry notification email')
 

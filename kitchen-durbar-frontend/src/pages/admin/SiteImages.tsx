@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api, apiErrorMessage } from '../../api/client'
+import { compressImage } from '../../lib/image'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { SITE_IMAGE_SLOTS, type SiteImageSlot } from '../../content/site'
 import { useCms } from '../../context/CmsContext'
@@ -26,7 +27,7 @@ export default function AdminSiteImages() {
     try {
       const body = new FormData()
       body.append('key', slot)
-      body.append('image', file)
+      body.append('image', await compressImage(file))
       await api.post('/site-images', body)
       refresh()
       toast(`${SITE_IMAGE_SLOTS[slot].label} updated`)

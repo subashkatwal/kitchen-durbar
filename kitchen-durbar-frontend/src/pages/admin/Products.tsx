@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, apiErrorMessage } from '../../api/client'
+import { compressImage } from '../../lib/image'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import Select from '../../components/Select'
 import { useToast } from '../../context/ToastContext'
@@ -74,7 +75,7 @@ export default function AdminProducts() {
         body.append('price', form.price)
         body.append('description', form.description.trim())
         body.append('is_featured', String(form.is_featured))
-        body.append('image', imageFile)
+        body.append('image', await compressImage(imageFile))
       } else {
         body = {
           name: form.name.trim(),

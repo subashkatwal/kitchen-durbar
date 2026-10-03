@@ -1,30 +1,30 @@
 import { useEffect, useState } from 'react'
 import { api, apiErrorMessage } from '../../api/client'
 import ConfirmDialog from '../../components/ConfirmDialog'
-import Select from '../../components/Select'
 import { useCms } from '../../context/CmsContext'
 import { useToast } from '../../context/ToastContext'
-import type { CmsTestimonial } from '../../types'
+import type { CmsSolution } from '../../types'
 
-const emptyForm = { quote: '', quote_ne: '', source: '', source_ne: '', rating: '5', display_order: '0', is_active: true }
+const emptyForm = { title: '', title_ne: '', description: '', description_ne: '', display_order: '0', is_active: true }
 
-export default function AdminTestimonials() {
+/** The "Solutions for every service environment" cards on the homepage and /solutions. */
+export default function AdminSolutions() {
   const toast = useToast()
   const { refresh } = useCms()
-  const [items, setItems] = useState<CmsTestimonial[]>([])
+  const [items, setItems] = useState<CmsSolution[]>([])
   const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<CmsTestimonial | null>(null)
+  const [editing, setEditing] = useState<CmsSolution | null>(null)
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
   function load() {
     api
-      .get<CmsTestimonial[]>('/testimonials')
+      .get<CmsSolution[]>('/solutions')
       .then((res) => setItems(res.data))
       .catch((err) => {
         setItems([])
-        toast(apiErrorMessage(err, 'Could not load testimonials.'))
+        toast(apiErrorMessage(err, 'Could not load solutions.'))
       })
   }
 
@@ -41,14 +41,13 @@ export default function AdminTestimonials() {
     setModalOpen(true)
   }
 
-  function openEdit(item: CmsTestimonial) {
+  function openEdit(item: CmsSolution) {
     setEditing(item)
     setForm({
-      quote: item.quote,
-      quote_ne: item.quote_ne,
-      source: item.source,
-      source_ne: item.source_ne,
-      rating: String(item.rating),
+      title: item.title,
+      title_ne: item.title_ne,
+      description: item.description,
+      description_ne: item.description_ne,
       display_order: String(item.display_order),
       is_active: item.is_active,
     })
@@ -56,28 +55,27 @@ export default function AdminTestimonials() {
   }
 
   async function save() {
-    if (!form.quote.trim() || !form.source.trim()) {
-      toast('Please enter the quote and who it is from')
+    if (!form.title.trim() || !form.description.trim()) {
+      toast('Please enter a title and description')
       return
     }
     setSaving(true)
     try {
       const body = {
-        quote: form.quote.trim(),
-        quote_ne: form.quote_ne.trim(),
-        source: form.source.trim(),
-        source_ne: form.source_ne.trim(),
-        rating: Math.min(5, Math.max(1, Number(form.rating) || 5)),
+        title: form.title.trim(),
+        title_ne: form.title_ne.trim(),
+        description: form.description.trim(),
+        description_ne: form.description_ne.trim(),
         display_order: Math.max(0, Number(form.display_order) || 0),
         is_active: form.is_active,
       }
-      if (editing) await api.patch(`/testimonials/${editing.id}`, body)
-      else await api.post('/testimonials', body)
+      if (editing) await api.patch(`/solutions/${editing.id}`, body)
+      else await api.post('/solutions', body)
       setModalOpen(false)
       afterChange()
-      toast('Testimonial saved!')
+      toast('Solution saved!')
     } catch (err) {
-      toast(apiErrorMessage(err, 'Could not save testimonial'))
+      toast(apiErrorMessage(err, 'Could not save solution'))
     } finally {
       setSaving(false)
     }
@@ -86,11 +84,11 @@ export default function AdminTestimonials() {
   async function remove() {
     if (!deleteId) return
     try {
-      await api.delete(`/testimonials/${deleteId}`)
+      await api.delete(`/solutions/${deleteId}`)
       afterChange()
-      toast('Testimonial deleted')
+      toast('Solution deleted')
     } catch (err) {
-      toast(apiErrorMessage(err, 'Could not delete testimonial'))
+      toast(apiErrorMessage(err, 'Could not delete solution'))
     } finally {
       setDeleteId(null)
     }
@@ -100,24 +98,21 @@ export default function AdminTestimonials() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
         <div>
-          <h2>Testimonials</h2>
+          <h2>Solutions</h2>
           <p style={{ color: 'var(--muted-foreground)', fontSize: 15, marginTop: 6 }}>
-            Client quotes for the homepage “Client perspective” section and the Projects page feedback section.
-            Feedback visitors submit from the Projects page arrives here as <b>Hidden</b> - edit it and tick “Visible” to
-            publish it.
+            The “Solutions for every service environment” cards on the homepage and the Solutions page.
           </p>
         </div>
         <button className="kd-btn kd-btn-p" onClick={openAdd}>
-          + Add Testimonial
+          + Add Solution
         </button>
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table className="kd-tb2">
           <thead>
             <tr>
-              <th>Quote</th>
-              <th>From</th>
-              <th>Rating</th>
+              <th>Title</th>
+              <th>Description</th>
               <th>Order</th>
               <th>Status</th>
               <th style={{ width: 160 }}>Actions</th>
@@ -126,16 +121,17 @@ export default function AdminTestimonials() {
           <tbody>
             {items.length === 0 && (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: 24 }}>
-                  No testimonials yet
+                <td colSpan={5} style={{ textAlign: 'center', color: 'var(--muted-foreground)', padding: 24 }}>
+                  No solutions yet
                 </td>
               </tr>
             )}
             {items.map((item) => (
               <tr key={item.id}>
-                <td style={{ maxWidth: 420 }}>“{item.quote}”</td>
-                <td>{item.source}</td>
-                <td style={{ whiteSpace: 'nowrap', color: 'var(--primary)' }}>{'★'.repeat(item.rating)}{'☆'.repeat(5 - item.rating)}</td>
+                <td>
+                  <b>{item.title}</b>
+                </td>
+                <td style={{ maxWidth: 420 }}>{item.description}</td>
                 <td>{item.display_order}</td>
                 <td>
                   <span className={`kd-bg ${item.is_active ? 'kd-bgs' : 'kd-bgd'}`}>{item.is_active ? 'Visible' : 'Hidden'}</span>
@@ -156,34 +152,32 @@ export default function AdminTestimonials() {
 
       <div className={`kd-mo${modalOpen ? ' active' : ''}`}>
         <div className="kd-md">
-          <h3>{editing ? 'Edit Testimonial' : 'Add Testimonial'}</h3>
+          <h3>{editing ? 'Edit Solution' : 'Add Solution'}</h3>
           <div className="kd-fg">
-            <label>Quote</label>
-            <textarea rows={4} value={form.quote} onChange={(e) => setForm({ ...form, quote: e.target.value })} />
-          </div>
-          <div className="kd-fg">
-            <label>Quote in Nepali (optional)</label>
-            <textarea rows={3} value={form.quote_ne} onChange={(e) => setForm({ ...form, quote_ne: e.target.value })} />
-          </div>
-          <div className="kd-fg">
-            <label>From</label>
+            <label>Title</label>
             <input
               type="text"
-              placeholder="e.g. Hotel client · Kathmandu"
-              value={form.source}
-              onChange={(e) => setForm({ ...form, source: e.target.value })}
+              placeholder="e.g. Cloud Kitchen"
+              maxLength={100}
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
           </div>
           <div className="kd-fg">
-            <label>From (Nepali, optional)</label>
-            <input type="text" value={form.source_ne} onChange={(e) => setForm({ ...form, source_ne: e.target.value })} />
+            <label>Title in Nepali (optional)</label>
+            <input type="text" maxLength={100} value={form.title_ne} onChange={(e) => setForm({ ...form, title_ne: e.target.value })} />
           </div>
           <div className="kd-fg">
-            <label>Star rating</label>
-            <Select
-              value={form.rating}
-              onChange={(rating) => setForm({ ...form, rating })}
-              options={[5, 4, 3, 2, 1].map((n) => ({ value: String(n), label: `${'★'.repeat(n)} (${n})` }))}
+            <label>Description</label>
+            <textarea rows={3} maxLength={300} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </div>
+          <div className="kd-fg">
+            <label>Description in Nepali (optional)</label>
+            <textarea
+              rows={3}
+              maxLength={300}
+              value={form.description_ne}
+              onChange={(e) => setForm({ ...form, description_ne: e.target.value })}
             />
           </div>
           <div className="kd-fg">
@@ -201,7 +195,7 @@ export default function AdminTestimonials() {
               Cancel
             </button>
             <button className="kd-btn kd-btn-p" onClick={save} disabled={saving}>
-              {saving ? 'Saving...' : 'Save Testimonial'}
+              {saving ? 'Saving...' : 'Save Solution'}
             </button>
           </div>
         </div>
@@ -209,8 +203,8 @@ export default function AdminTestimonials() {
 
       <ConfirmDialog
         open={deleteId !== null}
-        title="Delete testimonial"
-        message="Are you sure you want to delete this testimonial? This cannot be undone."
+        title="Delete solution"
+        message="Are you sure you want to delete this solution card? This cannot be undone."
         confirmLabel="Delete"
         onConfirm={remove}
         onCancel={() => setDeleteId(null)}

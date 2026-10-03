@@ -46,10 +46,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
 
-    # Must load before django.contrib.staticfiles per
-    # django-cloudinary-storage documentation.
-    'cloudinary_storage',
+    # cloudinary_storage must come AFTER staticfiles: listed first, its own
+    # collectstatic wins, and that one silently skips copying every file
+    # unless static files also live on Cloudinary - leaving STATIC_ROOT
+    # empty and the Django admin with no CSS. It's only used for media here.
     'django.contrib.staticfiles',
+    'cloudinary_storage',
     'cloudinary',
 
     'rest_framework',
@@ -205,6 +207,16 @@ CLOUDINARY_API_SECRET = env(
 
 USE_CLOUDINARY_MEDIA = bool(CLOUDINARY_CLOUD_NAME)
 
+if RENDER_EXTERNAL_HOSTNAME and not USE_CLOUDINARY_MEDIA:
+    # Render's disk is wiped on every restart/spin-down, so uploaded photos
+    # would "work" briefly and then 404. Make the misconfiguration visible.
+    import warnings
+
+    warnings.warn(
+        'CLOUDINARY_CLOUD_NAME is not set - uploaded images are stored on '
+        "Render's ephemeral disk and will disappear on the next restart."
+    )
+
 if USE_CLOUDINARY_MEDIA:
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
@@ -296,6 +308,8 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': (
         'drf_spectacular.openapi.AutoSchema'
     ),
+
+    'EXCEPTION_HANDLER': 'common.exceptions.api_exception_handler',
 }
 
 
@@ -398,6 +412,16 @@ DEFAULT_FROM_EMAIL = env(
     'DEFAULT_FROM_EMAIL',
     default='Kitchen Durbar <no-reply@kitchendurbar.com>'
 )
+
+# Fail fast instead of hanging until gunicorn kills the worker (a killed
+# worker returns a bare 502 with no CORS headers, which the browser reports
+# as a network error rather than the real problem).
+EMAIL_TIMEOUT = env.int('EMAIL_TIMEOUT', default=10)
+
+# Optional: send mail through Brevo's HTTPS API instead of SMTP. Needed on
+# Render's free plan, which blocks outbound SMTP ports. Free account at
+# brevo.com -> SMTP & API -> API Keys; verify DEFAULT_FROM_EMAIL as a sender.
+BREVO_API_KEY = env('BREVO_API_KEY', default='')
 
 
 # ---------------------------------------------------------------------------

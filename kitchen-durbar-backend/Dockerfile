@@ -19,4 +19,4 @@ RUN sed -i 's/\r$//' entrypoint.sh && chmod +x entrypoint.sh
 EXPOSE 8000
 
 ENTRYPOINT ["./entrypoint.sh"]
-CMD ["gunicorn", "kitchen_durbar.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+CMD ["gunicorn", "kitchen_durbar.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120"]

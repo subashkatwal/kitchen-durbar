@@ -1,5 +1,6 @@
 import uuid
 
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -71,13 +72,19 @@ class Project(models.Model):
 
 
 class Testimonial(models.Model):
-    """A client quote for the homepage "Client perspective" carousel."""
+    """A client quote for the homepage "Client perspective" carousel and the
+    Projects page feedback section. Visitors can also submit one from the
+    Projects page - those arrive hidden (is_active=False) until an admin
+    approves them."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     quote = models.TextField(max_length=600)
     quote_ne = models.TextField(max_length=600, blank=True)
     source = models.CharField(max_length=200, help_text='Attribution, e.g. "Hotel client · Kathmandu".')
     source_ne = models.CharField(max_length=200, blank=True)
+    rating = models.PositiveSmallIntegerField(
+        default=5, validators=[MinValueValidator(1), MaxValueValidator(5)], help_text='Star rating, 1-5.'
+    )
     display_order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -87,3 +94,25 @@ class Testimonial(models.Model):
 
     def __str__(self):
         return self.source
+
+
+class Solution(models.Model):
+    """A service environment on the homepage "Solutions for every service
+    environment" grid and the /solutions page (Restaurants, Banquet, Central
+    Kitchen, Cloud Kitchen, ...). *_ne fields are optional Nepali
+    translations - the frontend falls back to English when blank."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=100)
+    title_ne = models.CharField(max_length=100, blank=True)
+    description = models.CharField(max_length=300)
+    description_ne = models.CharField(max_length=300, blank=True)
+    display_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['display_order', 'created_at']
+
+    def __str__(self):
+        return self.title

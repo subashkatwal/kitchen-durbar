@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Project, SiteImage, Testimonial
+from .models import Project, SiteImage, Solution, Testimonial
 
 
 @admin.register(SiteImage)
@@ -20,7 +20,15 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Testimonial)
 class TestimonialAdmin(admin.ModelAdmin):
-    list_display = ['source', 'display_order', 'is_active', 'created_at']
+    list_display = ['source', 'rating', 'display_order', 'is_active', 'created_at']
+    list_filter = ['is_active', 'rating']
+    list_editable = ['display_order', 'is_active']
+    readonly_fields = ['id', 'created_at']
+
+
+@admin.register(Solution)
+class SolutionAdmin(admin.ModelAdmin):
+    list_display = ['title', 'display_order', 'is_active', 'created_at']
     list_filter = ['is_active']
     list_editable = ['display_order', 'is_active']
     readonly_fields = ['id', 'created_at']

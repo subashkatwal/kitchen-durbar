@@ -27,7 +27,7 @@ export default function Services() {
       <section className="bg-card py-16 md:py-24">
         <div className={CONTAINER}>
           <SectionTitle eyebrow={page.alsoEyebrow} title={page.alsoTitle} />
-          <div className="grid border-l border-t border-border md:grid-cols-3">
+          <div className="grid border-l border-t border-border md:grid-cols-2 lg:grid-cols-4">
             {page.alsoItems.map(([title, copy]) => (
               <div key={title} className="border-b border-r border-border p-7">
                 <h3 className="text-3xl">{title}</h3>

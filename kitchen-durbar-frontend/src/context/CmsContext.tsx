@@ -1,12 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import { api } from '../api/client'
-import { SITE_IMAGE_SLOTS, type SiteImageSlot } from '../content/site'
-import type { CmsProject, CmsTestimonial, SiteImage } from '../types'
+import { SITE_IMAGE_SLOTS, useSiteContent, type SiteImageSlot } from '../content/site'
+import type { CmsProject, CmsSolution, CmsTestimonial, SiteImage } from '../types'
 import { useLanguage } from './LanguageContext'
 
 /**
  * Admin-managed storefront content (Admin → Site Images / Projects /
- * Testimonials), fetched once at startup and shared by every page.
+ * Testimonials / Solutions), fetched once at startup and shared by every page.
  * `refresh()` is called by the admin screens after an edit so the storefront
  * picks the change up without a reload.
  */
@@ -14,6 +14,8 @@ interface CmsContextValue {
   images: Partial<Record<SiteImageSlot, string>>
   projects: CmsProject[]
   testimonials: CmsTestimonial[]
+  /** null until fetched (or if the request failed) - see useSolutions(). */
+  solutions: CmsSolution[] | null
   loaded: boolean
   refresh: () => void
 }
@@ -24,6 +26,7 @@ export function CmsProvider({ children }: { children: ReactNode }) {
   const [images, setImages] = useState<CmsContextValue['images']>({})
   const [projects, setProjects] = useState<CmsProject[]>([])
   const [testimonials, setTestimonials] = useState<CmsTestimonial[]>([])
+  const [solutions, setSolutions] = useState<CmsSolution[] | null>(null)
   const [loaded, setLoaded] = useState(false)
 
   const refresh = useCallback(() => {
@@ -37,13 +40,14 @@ export function CmsProvider({ children }: { children: ReactNode }) {
       }),
       api.get<CmsProject[]>('/projects').then((res) => setProjects(res.data.filter((p) => p.is_active))),
       api.get<CmsTestimonial[]>('/testimonials').then((res) => setTestimonials(res.data.filter((t) => t.is_active))),
+      api.get<CmsSolution[]>('/solutions').then((res) => setSolutions(res.data.filter((s) => s.is_active))),
     ]).finally(() => setLoaded(true))
   }, [])
 
   useEffect(refresh, [refresh])
 
   return (
-    <CmsContext.Provider value={{ images, projects, testimonials, loaded, refresh }}>{children}</CmsContext.Provider>
+    <CmsContext.Provider value={{ images, projects, testimonials, solutions, loaded, refresh }}>{children}</CmsContext.Provider>
   )
 }
 
@@ -87,5 +91,21 @@ export function useTestimonials() {
     id: t.id,
     quote: (language === 'ne' && t.quote_ne) || t.quote,
     source: (language === 'ne' && t.source_ne) || t.source,
+    rating: t.rating,
   }))
+}
+
+/**
+ * The "Solutions for every service environment" cards (Admin → Solutions) as
+ * [title, description] pairs in the current language. Falls back to the
+ * built-in list until the API answers, so the section never renders empty.
+ */
+export function useSolutions(): (readonly [string, string])[] {
+  const { solutions } = useCms()
+  const { language } = useLanguage()
+  const site = useSiteContent()
+  if (!solutions) return site.sectors
+  return solutions.map(
+    (s) => [(language === 'ne' && s.title_ne) || s.title, (language === 'ne' && s.description_ne) || s.description] as const,
+  )
 }

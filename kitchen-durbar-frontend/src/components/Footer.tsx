@@ -58,9 +58,14 @@ export default function Footer() {
               {site.address.line2}
             </p>
             <p>
-              <a href={COMPANY.phoneHref} className="hover:text-primary">
-                {COMPANY.phone}
-              </a>
+              {COMPANY.phones.map((phone, i) => (
+                <span key={phone.href}>
+                  {i > 0 && ' / '}
+                  <a href={phone.href} className="hover:text-primary">
+                    {phone.display}
+                  </a>
+                </span>
+              ))}
             </p>
             <p>
               <a href={WHATSAPP_CHAT_LINK} target="_blank" rel="noreferrer" className="hover:text-primary">

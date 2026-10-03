@@ -37,7 +37,10 @@ class RegisterView(generics.CreateAPIView):
     afterwards, same as any other credential check.
 
     Also fires off a signup-verification OTP so the frontend can send the
-    user straight to the OTP page after a successful registration.
+    user straight to the OTP page after a successful registration. If that
+    email can't be sent, the account still exists (login isn't blocked on
+    verification) - `otp_sent: false` tells the frontend to sign the user in
+    directly instead of waiting on a code that will never arrive.
     """
 
     queryset = User.objects.all()
@@ -49,8 +52,8 @@ class RegisterView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         otp = OTP.objects.create(email=user.email, purpose=OTP.Purpose.SIGNUP)
-        send_otp_email(user.email, otp.code, OTP.Purpose.SIGNUP)
-        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+        otp_sent = send_otp_email(user.email, otp.code, OTP.Purpose.SIGNUP)
+        return Response({**UserSerializer(user).data, 'otp_sent': otp_sent}, status=status.HTTP_201_CREATED)
 
 
 class EmailTokenObtainPairView(TokenObtainPairView):
@@ -179,7 +182,12 @@ class RequestOTPView(generics.GenericAPIView):
             )
 
         otp = OTP.objects.create(email=email, purpose=purpose)
-        send_otp_email(email, otp.code, purpose)
+        if not send_otp_email(email, otp.code, purpose):
+            otp.delete()
+            return Response(
+                {'detail': "We couldn't send the email right now. Please try again later."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
         return generic_response if purpose == OTP.Purpose.RESET else Response({'detail': 'Verification code sent.'})
 

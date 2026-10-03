@@ -31,7 +31,7 @@ export default function Login() {
     try {
       await login(trimmedEmail, password)
       toast(t('login.welcomeBack'))
-      navigate('/')
+      navigate('/products')
     } catch (err) {
       setError(apiErrorMessage(err, t('login.error')))
     } finally {

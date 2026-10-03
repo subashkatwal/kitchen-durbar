@@ -120,6 +120,18 @@ export interface CmsTestimonial {
   quote_ne: string
   source: string
   source_ne: string
+  rating: number
+  display_order: number
+  is_active: boolean
+  created_at: string
+}
+
+export interface CmsSolution {
+  id: string
+  title: string
+  title_ne: string
+  description: string
+  description_ne: string
   display_order: number
   is_active: boolean
   created_at: string
