@@ -1,10 +1,17 @@
-from rest_framework import status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 
 from common.permissions import IsAdminOrReadOnly
 
-from .models import Project, SiteImage, Testimonial
-from .serializers import ProjectSerializer, SiteImageSerializer, TestimonialSerializer
+from .models import Project, SiteImage, Solution, Testimonial
+from .serializers import (
+    ProjectSerializer,
+    PublicFeedbackSerializer,
+    SiteImageSerializer,
+    SolutionSerializer,
+    TestimonialSerializer,
+)
 
 
 class SiteImageViewSet(viewsets.ModelViewSet):
@@ -54,10 +61,55 @@ class ProjectViewSet(ActiveForPublicMixin, viewsets.ModelViewSet):
     filter_backends = []
 
 
+class FeedbackCreateThrottle(AnonRateThrottle):
+    """Feedback submission is public - cap it per IP so it can't be spammed."""
+
+    scope = 'feedback_create'
+    rate = '10/hour'
+
+
 class TestimonialViewSet(ActiveForPublicMixin, viewsets.ModelViewSet):
-    """Mounted at /api/v1/testimonials. Public read, admin write."""
+    """
+    Mounted at /api/v1/testimonials. Public read, admin write - except
+    create, which anyone may call to leave feedback from the Projects page.
+    A visitor's submission is saved hidden until an admin makes it visible.
+    """
 
     queryset = Testimonial.objects.all()
     serializer_class = TestimonialSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = []
+
+    def _is_staff(self):
+        user = self.request.user
+        return bool(user and user.is_authenticated and user.is_staff)
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [permissions.AllowAny()]
+        return super().get_permissions()
+
+    def get_throttles(self):
+        if self.action == 'create' and not self._is_staff():
+            return [FeedbackCreateThrottle()]
+        return super().get_throttles()
+
+    def get_serializer_class(self):
+        if self.action == 'create' and not self._is_staff():
+            return PublicFeedbackSerializer
+        return TestimonialSerializer
+
+    def perform_create(self, serializer):
+        if self._is_staff():
+            serializer.save()
+        else:
+            serializer.save(is_active=False)
+
+
+class SolutionViewSet(ActiveForPublicMixin, viewsets.ModelViewSet):
+    """Mounted at /api/v1/solutions. Public read, admin write."""
+
+    queryset = Solution.objects.all()
+    serializer_class = SolutionSerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = []

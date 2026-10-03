@@ -232,6 +232,23 @@ const en = {
   'admin.siteImages': 'Site Images',
   'admin.projects': 'Projects',
   'admin.testimonials': 'Testimonials',
+  'admin.solutions': 'Solutions',
+
+  // --- Projects page feedback ---
+  'feedback.eyebrow': 'Client feedback',
+  'feedback.title': 'What our clients say.',
+  'feedback.copy': 'Worked with us? Rate your experience and leave a message.',
+  'feedback.empty': 'No feedback yet - be the first to share yours.',
+  'feedback.name': 'Your name',
+  'feedback.rating': 'Rating',
+  'feedback.message': 'Message',
+  'feedback.messagePlaceholder': 'Tell us about your kitchen project and our service.',
+  'feedback.submit': 'Submit feedback',
+  'feedback.sending': 'Submitting...',
+  'feedback.success': 'Thank you for your feedback! It will appear here once reviewed.',
+  'feedback.error': 'Could not submit your feedback. Please try again.',
+  'feedback.required': 'Please enter your name, choose a star rating and write a message.',
+  'feedback.stars': '{n} out of 5 stars',
 } as const
 
 export type TranslationKey = keyof typeof en

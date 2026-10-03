@@ -7,7 +7,7 @@ import ProductCard from '../components/ProductCard'
 import { ContactSection, CtaBand, TeamSection } from '../components/sections'
 import { buttonClass, CONTAINER, indexLabel, SectionTitle } from '../components/ui'
 import { categorySlot, useSiteContent } from '../content/site'
-import { useProjects, useSiteImageGetter, useTestimonials } from '../context/CmsContext'
+import { useProjects, useSiteImageGetter, useSolutions, useTestimonials } from '../context/CmsContext'
 import { useLanguage } from '../context/LanguageContext'
 import { CATEGORIES, type Advertisement, type Category, type Product } from '../types'
 
@@ -18,6 +18,7 @@ export default function Home() {
   const siteImage = useSiteImageGetter()
   const { projects } = useProjects()
   const testimonials = useTestimonials()
+  const solutions = useSolutions()
   const [featured, setFeatured] = useState<Product[]>([])
   const [ads, setAds] = useState<Advertisement[]>([])
   const [query, setQuery] = useState('')
@@ -85,7 +86,7 @@ export default function Home() {
                 {t('nav.requestQuote')}
               </Link>
             </div>
-            {/* Stats row (150+ Projects / 120+ Clients / A–Z Solutions) hidden for now.
+            {/* Stats row (480+ Projects / 500+ Clients / A–Z Solutions) hidden for now.
                 Restore both blocks below (mobile + desktop) to bring it back.
             <div className="mt-10 grid grid-cols-3 gap-4 border-t border-background/20 pt-6 md:hidden">
               {home.stats.map(([value, label]) => (
@@ -209,7 +210,7 @@ export default function Home() {
         <div className={CONTAINER}>
           <SectionTitle eyebrow={home.sectorsEyebrow} title={home.sectorsTitle} />
           <div className="grid border-l border-t border-border md:grid-cols-2 lg:grid-cols-3">
-            {site.sectors.map(([title, copy], i) => (
+            {solutions.map(([title, copy], i) => (
               <Link
                 key={title}
                 to="/solutions"

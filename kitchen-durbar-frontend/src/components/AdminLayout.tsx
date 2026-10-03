@@ -16,6 +16,7 @@ export default function AdminLayout() {
         <NavLink to="/admin/enquiries">{t('admin.enquiries')}</NavLink>
         <p className="kd-asb-title kd-asb-subtitle">{t('admin.website')}</p>
         <NavLink to="/admin/site-images">{t('admin.siteImages')}</NavLink>
+        <NavLink to="/admin/solutions">{t('admin.solutions')}</NavLink>
         <NavLink to="/admin/projects">{t('admin.projects')}</NavLink>
         <NavLink to="/admin/team">{t('admin.team')}</NavLink>
         <NavLink to="/admin/testimonials">{t('admin.testimonials')}</NavLink>

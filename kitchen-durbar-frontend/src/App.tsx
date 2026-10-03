@@ -28,6 +28,7 @@ import AdminProducts from './pages/admin/Products'
 import AdminProjects from './pages/admin/Projects'
 import AdminSiteImages from './pages/admin/SiteImages'
 import AdminTeam from './pages/admin/Team'
+import AdminSolutions from './pages/admin/Solutions'
 import AdminTestimonials from './pages/admin/Testimonials'
 import AdminUsers from './pages/admin/Users'
 
@@ -86,6 +87,7 @@ export default function App() {
             <Route path="site-images" element={<AdminSiteImages />} />
             <Route path="projects" element={<AdminProjects />} />
             <Route path="testimonials" element={<AdminTestimonials />} />
+            <Route path="solutions" element={<AdminSolutions />} />
             <Route path="team" element={<AdminTeam />} />
             <Route path="ads" element={<AdminAds />} />
             <Route path="users" element={<AdminUsers />} />

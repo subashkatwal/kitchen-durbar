@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom'
 import { CtaBand } from '../components/sections'
 import { CONTAINER, indexLabel, PageHero, SectionTitle } from '../components/ui'
 import { useSiteContent } from '../content/site'
-import { useSiteImage } from '../context/CmsContext'
+import { useSiteImage, useSolutions } from '../context/CmsContext'
 
 export default function Solutions() {
   const site = useSiteContent()
   const heroImage = useSiteImage('solutions_hero')
+  const solutions = useSolutions()
 
   return (
     <>
@@ -15,7 +16,7 @@ export default function Solutions() {
       <section className={`py-16 md:py-24 ${CONTAINER}`}>
         <SectionTitle eyebrow={site.solutions.eyebrow} title={site.solutions.title} />
         <div className="grid border-l border-t border-border md:grid-cols-2 lg:grid-cols-3">
-          {site.sectors.map(([title, copy], i) => (
+          {solutions.map(([title, copy], i) => (
             <Link
               key={title}
               to="/contact"

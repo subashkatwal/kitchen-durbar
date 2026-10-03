@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 
 from common.testing import make_image, make_user
 
-from .models import Project, SiteImage, Testimonial
+from .models import Project, SiteImage, Solution, Testimonial
 
 
 class SiteImageApiTests(APITestCase):
@@ -62,3 +62,44 @@ class ProjectAndTestimonialApiTests(APITestCase):
         Testimonial.objects.create(quote='Hidden', source='Client B', is_active=False)
         res = self.client.get('/api/v1/testimonials')
         self.assertEqual([t['source'] for t in res.data], ['Client A'])
+
+
+class FeedbackApiTests(APITestCase):
+    def test_public_feedback_is_saved_hidden(self):
+        res = self.client.post('/api/v1/testimonials', {'source': 'Ram', 'rating': 4, 'quote': 'Great work', 'is_active': True})
+        self.assertEqual(res.status_code, 201, res.data)
+        feedback = Testimonial.objects.get()
+        self.assertEqual((feedback.rating, feedback.is_active), (4, False))
+        self.assertEqual(self.client.get('/api/v1/testimonials').data, [])
+
+    def test_rating_required_and_bounded(self):
+        self.assertEqual(self.client.post('/api/v1/testimonials', {'source': 'Ram', 'quote': 'Hi'}).status_code, 400)
+        self.assertEqual(
+            self.client.post('/api/v1/testimonials', {'source': 'Ram', 'quote': 'Hi', 'rating': 6}).status_code, 400
+        )
+
+    def test_staff_create_is_visible(self):
+        self.client.force_authenticate(make_user(staff=True))
+        res = self.client.post('/api/v1/testimonials', {'source': 'Hotel', 'quote': 'Superb', 'rating': 5}, format='json')
+        self.assertEqual(res.status_code, 201, res.data)
+        self.assertTrue(Testimonial.objects.get().is_active)
+
+    def test_public_cannot_edit(self):
+        t = Testimonial.objects.create(quote='Great', source='Client A')
+        self.assertEqual(self.client.patch(f'/api/v1/testimonials/{t.id}', {'is_active': False}).status_code, 401)
+
+
+class SolutionApiTests(APITestCase):
+    def test_seeded_with_banquet_central_and_cloud_kitchen(self):
+        titles = [s['title'] for s in self.client.get('/api/v1/solutions').data]
+        for title in ('Banquet', 'Central Kitchen', 'Cloud Kitchen'):
+            self.assertIn(title, titles)
+
+    def test_staff_can_edit_public_cannot(self):
+        solution = Solution.objects.get(title='Cloud Kitchen')
+        self.assertEqual(self.client.patch(f'/api/v1/solutions/{solution.id}', {'title': 'X'}).status_code, 401)
+        self.client.force_authenticate(make_user(staff=True))
+        res = self.client.patch(f'/api/v1/solutions/{solution.id}', {'description': 'Delivery-first kitchens.'})
+        self.assertEqual(res.status_code, 200, res.data)
+        solution.refresh_from_db()
+        self.assertEqual(solution.description, 'Delivery-first kitchens.')

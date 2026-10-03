@@ -230,6 +230,23 @@ const ne: Record<TranslationKey, string> = {
   'admin.siteImages': 'साइट तस्बिरहरू',
   'admin.projects': 'परियोजनाहरू',
   'admin.testimonials': 'प्रतिक्रियाहरू',
+  'admin.solutions': 'समाधानहरू',
+
+  // --- Projects page feedback ---
+  'feedback.eyebrow': 'ग्राहकको प्रतिक्रिया',
+  'feedback.title': 'हाम्रा ग्राहकहरू के भन्छन्।',
+  'feedback.copy': 'हामीसँग काम गर्नुभएको छ? आफ्नो अनुभवलाई रेटिङ दिनुहोस् र सन्देश छोड्नुहोस्।',
+  'feedback.empty': 'अहिलेसम्म कुनै प्रतिक्रिया छैन - पहिलो प्रतिक्रिया दिनुहोस्।',
+  'feedback.name': 'तपाईंको नाम',
+  'feedback.rating': 'रेटिङ',
+  'feedback.message': 'सन्देश',
+  'feedback.messagePlaceholder': 'आफ्नो भान्सा परियोजना र हाम्रो सेवाबारे बताउनुहोस्।',
+  'feedback.submit': 'प्रतिक्रिया पठाउनुहोस्',
+  'feedback.sending': 'पठाइँदैछ...',
+  'feedback.success': 'प्रतिक्रियाका लागि धन्यवाद! समीक्षापछि यहाँ देखिनेछ।',
+  'feedback.error': 'प्रतिक्रिया पठाउन सकिएन। कृपया फेरि प्रयास गर्नुहोस्।',
+  'feedback.required': 'कृपया नाम लेख्नुहोस्, स्टार रेटिङ छान्नुहोस् र सन्देश लेख्नुहोस्।',
+  'feedback.stars': '५ मध्ये {n} स्टार',
 }
 
 export default ne
