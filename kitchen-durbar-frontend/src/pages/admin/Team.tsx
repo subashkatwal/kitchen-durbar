@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, apiErrorMessage } from '../../api/client'
+import { compressImage } from '../../lib/image'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { useToast } from '../../context/ToastContext'
 import type { TeamMember } from '../../types'
@@ -76,7 +77,7 @@ export default function AdminTeam() {
       if (photoFile) {
         body = new FormData()
         for (const [k, v] of Object.entries(fields)) body.append(k, String(v))
-        body.append('photo', photoFile)
+        body.append('photo', await compressImage(photoFile))
       } else {
         body = fields
       }

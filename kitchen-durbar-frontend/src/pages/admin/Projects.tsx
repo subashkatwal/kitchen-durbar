@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api, apiErrorMessage } from '../../api/client'
+import { compressImage } from '../../lib/image'
 import ConfirmDialog from '../../components/ConfirmDialog'
 import { useCms } from '../../context/CmsContext'
 import { useToast } from '../../context/ToastContext'
@@ -99,7 +100,7 @@ export default function AdminProjects() {
       if (imageFile) {
         body = new FormData()
         for (const [k, v] of Object.entries(fields)) body.append(k, String(v))
-        body.append('image', imageFile)
+        body.append('image', await compressImage(imageFile))
       } else {
         body = fields
       }
