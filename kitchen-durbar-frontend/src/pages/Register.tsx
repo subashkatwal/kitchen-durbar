@@ -8,7 +8,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { useToast } from '../context/ToastContext'
 
 export default function Register() {
-  const { register, login } = useAuth()
+  const { register } = useAuth()
   const navigate = useNavigate()
   const toast = useToast()
   const { t } = useLanguage()
@@ -36,17 +36,10 @@ export default function Register() {
 
     setBusy(true)
     try {
-      const otpSent = await register({ full_name: trimmedName, email: trimmedEmail, phone: phone.trim(), password })
-      if (otpSent) {
-        toast(t('register.success'))
-        navigate(`/verify-otp?email=${encodeURIComponent(trimmedEmail)}&purpose=signup`)
-      } else {
-        // The verification email couldn't be sent - the account exists and
-        // login isn't gated on verification, so sign straight in.
-        await login(trimmedEmail, password)
-        toast(t('login.welcomeBack'))
-        navigate('/products')
-      }
+      await register({ full_name: trimmedName, email: trimmedEmail, phone: phone.trim(), password })
+      toast(t('register.success'))
+      // Straight to sign-in with the email they just registered already filled in.
+      navigate(`/login?email=${encodeURIComponent(trimmedEmail)}`)
     } catch (err) {
       setError(apiErrorMessage(err, t('register.error')))
     } finally {
