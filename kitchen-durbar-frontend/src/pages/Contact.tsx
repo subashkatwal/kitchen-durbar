@@ -21,7 +21,7 @@ export default function Contact() {
             <p className="text-sm text-muted-foreground">{site.address.full}</p>
           </div>
           <iframe
-            title="Kitchen Durbar Solutions location in Bhaisepati"
+            title="Kitchen Durbar Solutions location in Jadibuti"
             src={COMPANY.mapEmbed}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"

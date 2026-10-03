@@ -53,10 +53,12 @@ export function categorySlot(category: Category): SiteImageSlot {
 
 /** Contact details shown in the footer, contact section and map. */
 export const COMPANY = {
-  phone: '+977 980 311 2717',
-  phoneHref: 'tel:+9779803112717',
-  email: 'kitchendurbarsolutions@gmail.com',
-  mapEmbed: 'https://www.google.com/maps?q=KK+Mart+Bhaisepati+Kathmandu+Nepal&output=embed',
+  phones: [
+    { display: '+977 9769400796', href: 'tel:+9779769400796' },
+    { display: '9851415643', href: 'tel:+9779851415643' },
+  ],
+  email: 'kitchen.durbar02@gmail.com',
+  mapEmbed: 'https://www.google.com/maps?q=Royal+Banquet+Jadibuti+Kathmandu+Nepal&output=embed',
 }
 
 type Pair = readonly [title: string, copy: string]
@@ -73,6 +75,7 @@ export interface SiteContent {
   footerCopyright: string
   cta: { eyebrow: string; title: string; copy: string }
   categoryLabels: Record<Category, string>
+  /** Fallback for the Admin → Solutions cards until the API answers (see useSolutions). */
   sectors: Pair[]
   services: Pair[]
   steps: string[]
@@ -156,9 +159,9 @@ export interface SiteContent {
 
 const en: SiteContent = {
   address: {
-    line1: 'Near KK Mart, Bhaisepati',
+    line1: 'Jadibuti, Near Royal Banquet',
     line2: 'Kathmandu, Nepal',
-    full: 'Near KK Mart, Bhaisepati, Kathmandu, Nepal',
+    full: 'Jadibuti, Near Royal Banquet Jadibuti, Kathmandu, Nepal',
   },
   footerTagline: 'Complete commercial kitchen planning, equipment, fabrication, installation and support across Nepal.',
   footerCopyright: '© 2026 Kitchen Durbar Solutions. Built for professional kitchens.',
@@ -182,14 +185,16 @@ const en: SiteContent = {
   sectors: [
     ['Restaurants', 'Fast, ergonomic lines designed around your menu.'],
     ['Hotels & Resorts', 'Multi-outlet systems for kitchens, banquets and bars.'],
+    ['Banquet', 'High-volume cooking, holding and plating for weddings, events and functions.'],
     ['Bakeries & Cafés', 'Reliable production, display and beverage workflows.'],
     ['Hospitals & Institutions', 'Hygienic, high-volume systems built for compliance.'],
-    ['Central Kitchens', 'Scalable production, storage and dispatch planning.'],
+    ['Central Kitchen', 'Scalable production, storage and dispatch planning.'],
+    ['Cloud Kitchen', 'Compact, delivery-first kitchens built for speed and multiple brands.'],
     ['Bars & Beverage', 'Compact, efficient stations shaped around service.'],
   ],
   services: [
     ['Consultation', 'Clarify capacity, cuisine, service model and investment priorities.'],
-    ['Kitchen Planning', 'Map efficient workflows, utilities and equipment placement.'],
+    ['Proper Layout', 'A layout shaped by menu, capacity, staff movement, utilities, hygiene and service rhythm.'],
     ['Equipment Supply', 'Source dependable commercial equipment for every station.'],
     ['Custom Fabrication', 'Build made-to-measure stainless steel counters and systems.'],
     ['Installation', 'Coordinate delivery, placement, testing and handover.'],
@@ -202,8 +207,8 @@ const en: SiteContent = {
     heroCopy:
       'We plan, supply, fabricate and install complete commercial kitchens-engineered around your menu, team and service.',
     stats: [
-      ['150+', 'Projects'],
-      ['120+', 'Clients'],
+      ['480+', 'Projects'],
+      ['500+', 'Clients'],
       ['A–Z', 'Solutions'],
     ],
     sinceValue: 'Since 2017',
@@ -252,8 +257,8 @@ const en: SiteContent = {
     partnerCopy:
       'Every project is shaped by menu, capacity, staff movement, utilities, hygiene and service rhythm. Our role is to connect those details into one coherent kitchen-from initial consultation to training and after-sales support.',
     stats: [
-      ['150+', 'Projects completed'],
-      ['120+', 'Clients served'],
+      ['480+', 'Projects completed'],
+      ['500+', 'Clients served'],
     ],
     teamEyebrow: 'How we work together',
     teamTitle: 'One team, accountable from plan to handover.',
@@ -310,7 +315,8 @@ const en: SiteContent = {
     alsoTitle: 'Services that keep your kitchen running.',
     alsoItems: [
       ['Gas Pipeline Installation', 'Safe, code-conscious LPG pipeline layouts for every burner and range.'],
-      ['Chimney & Ducting', 'Hoods, chimneys and ducting sized for proper extraction and airflow.'],
+      ['Chimney', 'Commercial hoods and chimneys sized to capture smoke, heat and grease over every cooking line.'],
+      ['Ducting', 'Ducting routed and sized for proper extraction, airflow and easy cleaning.'],
       ['Entire Kitchen Servicing', 'Routine maintenance and repairs to keep every station in service.'],
     ],
   },
@@ -324,15 +330,15 @@ const en: SiteContent = {
     title: 'Let’s build a better kitchen.',
     copy: 'Speak with our team about a new opening, renovation or equipment requirement.',
     visitEyebrow: 'Visit our office',
-    visitTitle: 'Find us in Bhaisepati.',
+    visitTitle: 'Find us in Jadibuti.',
   },
 }
 
 const ne: SiteContent = {
   address: {
-    line1: 'केके मार्ट नजिक, भैंसेपाटी',
+    line1: 'जडिबुटी, रोयल ब्याङ्क्वेट नजिक',
     line2: 'काठमाडौं, नेपाल',
-    full: 'केके मार्ट नजिक, भैंसेपाटी, काठमाडौं, नेपाल',
+    full: 'जडिबुटी, रोयल ब्याङ्क्वेट जडिबुटी नजिक, काठमाडौं, नेपाल',
   },
   footerTagline: 'नेपालभर व्यावसायिक भान्साको योजना, उपकरण, फेब्रिकेसन, जडान र सहयोग - सबै एकै ठाउँमा।',
   footerCopyright: '© २०२६ किचन दरबार सोलुसन्स। व्यावसायिक भान्साका लागि निर्मित।',
@@ -356,14 +362,16 @@ const ne: SiteContent = {
   sectors: [
     ['रेस्टुरेन्ट', 'तपाईंको मेनु अनुसार डिजाइन गरिएका छिटो र सहज लाइनहरू।'],
     ['होटल तथा रिसोर्ट', 'भान्सा, भोज र बारका लागि बहु-आउटलेट प्रणाली।'],
+    ['ब्याङ्क्वेट', 'विवाह, कार्यक्रम र समारोहका लागि ठूलो परिमाणमा पकाउने, तातो राख्ने र पस्कने व्यवस्था।'],
     ['बेकरी तथा क्याफे', 'भरपर्दो उत्पादन, डिस्प्ले र पेय कार्यप्रवाह।'],
     ['अस्पताल तथा संस्था', 'मापदण्ड अनुरूप स्वच्छ, ठूलो क्षमताका प्रणाली।'],
     ['केन्द्रीय भान्सा', 'विस्तारयोग्य उत्पादन, भण्डारण र वितरण योजना।'],
+    ['क्लाउड किचन', 'डेलिभरीका लागि छिटो र धेरै ब्रान्ड चलाउन मिल्ने गरी बनाइएका साना भान्सा।'],
     ['बार तथा पेय', 'सेवा अनुसार बनाइएका साना र प्रभावकारी स्टेसनहरू।'],
   ],
   services: [
     ['परामर्श', 'क्षमता, खानाको प्रकार, सेवा मोडेल र लगानी प्राथमिकता स्पष्ट गर्ने।'],
-    ['भान्सा योजना', 'प्रभावकारी कार्यप्रवाह, युटिलिटी र उपकरणको स्थान निर्धारण।'],
+    ['उचित लेआउट', 'मेनु, क्षमता, कर्मचारीको आवतजावत, युटिलिटी, स्वच्छता र सेवाको लय अनुसार मिलाइएको लेआउट।'],
     ['उपकरण आपूर्ति', 'हरेक स्टेसनका लागि भरपर्दो व्यावसायिक उपकरण।'],
     ['कस्टम फेब्रिकेसन', 'नाप अनुसार स्टेनलेस स्टिल काउन्टर र प्रणाली निर्माण।'],
     ['जडान', 'ढुवानी, स्थापना, परीक्षण र हस्तान्तरणको समन्वय।'],
@@ -376,8 +384,8 @@ const ne: SiteContent = {
     heroCopy:
       'हामी तपाईंको मेनु, टोली र सेवा अनुसार पूर्ण व्यावसायिक भान्साको योजना, आपूर्ति, फेब्रिकेसन र जडान गर्छौं।',
     stats: [
-      ['150+', 'परियोजना'],
-      ['120+', 'ग्राहक'],
+      ['480+', 'परियोजना'],
+      ['500+', 'ग्राहक'],
       ['A–Z', 'समाधान'],
     ],
     sinceValue: '२०१७ देखि',
@@ -426,8 +434,8 @@ const ne: SiteContent = {
     partnerCopy:
       'हरेक परियोजना मेनु, क्षमता, कर्मचारीको आवतजावत, युटिलिटी, स्वच्छता र सेवाको लयले आकार लिन्छ। हाम्रो काम ती सबैलाई जोडेर एउटा सुसंगत भान्सा बनाउनु हो-प्रारम्भिक परामर्शदेखि तालिम र बिक्रीपछिको सेवासम्म।',
     stats: [
-      ['150+', 'सम्पन्न परियोजना'],
-      ['120+', 'सेवा पाएका ग्राहक'],
+      ['480+', 'सम्पन्न परियोजना'],
+      ['500+', 'सेवा पाएका ग्राहक'],
     ],
     teamEyebrow: 'हामी सँगै कसरी काम गर्छौं',
     teamTitle: 'योजनादेखि हस्तान्तरणसम्म जिम्मेवार एउटै टोली।',
@@ -483,7 +491,8 @@ const ne: SiteContent = {
     alsoTitle: 'तपाईंको भान्सा चलिरहन चाहिने सेवाहरू।',
     alsoItems: [
       ['ग्यास पाइपलाइन जडान', 'हरेक बर्नर र रेन्जका लागि सुरक्षित एलपीजी पाइपलाइन।'],
-      ['चिम्नी तथा डक्टिङ', 'राम्रो धुवाँ निकास र हावा प्रवाहका लागि मिलाइएका हुड, चिम्नी र डक्ट।'],
+      ['चिम्नी', 'हरेक पकाउने लाइनमा धुवाँ, तातो र चिल्लो तान्न मिलाइएका व्यावसायिक हुड र चिम्नी।'],
+      ['डक्टिङ', 'राम्रो धुवाँ निकास, हावा प्रवाह र सजिलो सफाइका लागि मिलाइएको डक्टिङ।'],
       ['सम्पूर्ण भान्सा सर्भिसिङ', 'हरेक स्टेसन चालु राख्न नियमित मर्मत र सम्भार।'],
     ],
   },
@@ -497,7 +506,7 @@ const ne: SiteContent = {
     title: 'सँगै राम्रो भान्सा बनाऔं।',
     copy: 'नयाँ सुरुवात, नवीकरण वा उपकरण आवश्यकताबारे हाम्रो टोलीसँग कुरा गर्नुहोस्।',
     visitEyebrow: 'हाम्रो कार्यालय',
-    visitTitle: 'भैंसेपाटीमा भेट्नुहोस्।',
+    visitTitle: 'जडिबुटीमा भेट्नुहोस्।',
   },
 }
 

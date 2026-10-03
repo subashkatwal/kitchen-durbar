@@ -84,9 +84,16 @@ export function ContactSection() {
           </p>
           <p className={infoRow}>
             <Phone />
-            <a href={COMPANY.phoneHref} className="hover:text-primary">
-              {COMPANY.phone}
-            </a>
+            <span>
+              {COMPANY.phones.map((phone, i) => (
+                <span key={phone.href}>
+                  {i > 0 && ' / '}
+                  <a href={phone.href} className="hover:text-primary">
+                    {phone.display}
+                  </a>
+                </span>
+              ))}
+            </span>
           </p>
           <p className={infoRow}>
             <MessageCircle />
