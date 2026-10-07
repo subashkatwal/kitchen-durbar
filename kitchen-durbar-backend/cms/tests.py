@@ -65,12 +65,12 @@ class ProjectAndTestimonialApiTests(APITestCase):
 
 
 class FeedbackApiTests(APITestCase):
-    def test_public_feedback_is_saved_hidden(self):
-        res = self.client.post('/api/v1/testimonials', {'source': 'Ram', 'rating': 4, 'quote': 'Great work', 'is_active': True})
+    def test_public_feedback_is_shown_immediately(self):
+        res = self.client.post('/api/v1/testimonials', {'source': 'Ram', 'rating': 4, 'quote': 'Great work', 'display_order': 99})
         self.assertEqual(res.status_code, 201, res.data)
         feedback = Testimonial.objects.get()
-        self.assertEqual((feedback.rating, feedback.is_active), (4, False))
-        self.assertEqual(self.client.get('/api/v1/testimonials').data, [])
+        self.assertEqual((feedback.rating, feedback.is_active, feedback.display_order), (4, True, 0))
+        self.assertEqual([t['quote'] for t in self.client.get('/api/v1/testimonials').data], ['Great work'])
 
     def test_rating_required_and_bounded(self):
         self.assertEqual(self.client.post('/api/v1/testimonials', {'source': 'Ram', 'quote': 'Hi'}).status_code, 400)

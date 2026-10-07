@@ -34,8 +34,8 @@ class TestimonialSerializer(serializers.ModelSerializer):
 
 class PublicFeedbackSerializer(serializers.ModelSerializer):
     """What a visitor may set when leaving feedback on the Projects page -
-    name (source), star rating and message (quote). Visibility and ordering
-    stay admin-controlled."""
+    name (source), star rating and message (quote). Submissions are visible
+    by default; hiding and ordering stay admin-controlled."""
 
     class Meta:
         model = Testimonial

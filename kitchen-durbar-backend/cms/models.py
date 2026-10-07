@@ -74,8 +74,8 @@ class Project(models.Model):
 class Testimonial(models.Model):
     """A client quote for the homepage "Client perspective" carousel and the
     Projects page feedback section. Visitors can also submit one from the
-    Projects page - those arrive hidden (is_active=False) until an admin
-    approves them."""
+    Projects page - those are shown immediately and an admin can hide them
+    (is_active=False)."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     quote = models.TextField(max_length=600)
