@@ -13,7 +13,7 @@ import { buildOrderWhatsAppLink } from '../lib/whatsapp'
 import type { Order } from '../types'
 
 export default function Cart() {
-  const { items, subtotal, discount, discountRate, shipping, total, updateQty, removeItem, clear } = useCart()
+  const { items, subtotal, shipping, total, updateQty, removeItem, clear } = useCart()
   const { user } = useAuth()
   const navigate = useNavigate()
   const toast = useToast()
@@ -127,12 +127,6 @@ export default function Cart() {
                   <dt>{t('cart.subtotal')}</dt>
                   <dd>{formatNpr(subtotal)}</dd>
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-muted-foreground">
-                    <dt>{t('cart.discountWithRate', { rate: Math.round(discountRate * 100) })}</dt>
-                    <dd className="font-semibold text-success">-{formatNpr(discount)}</dd>
-                  </div>
-                )}
                 <div className="flex justify-between text-muted-foreground">
                   <dt>{t('cart.shipping')}</dt>
                   <dd>{shipping === 0 ? t('common.free') : formatNpr(shipping)}</dd>

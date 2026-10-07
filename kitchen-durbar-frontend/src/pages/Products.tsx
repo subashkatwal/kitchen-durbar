@@ -6,9 +6,8 @@ import AdBannerSection from '../components/AdBannerSection'
 import ProductCard from '../components/ProductCard'
 import Select from '../components/Select'
 import { CtaBand } from '../components/sections'
-import { buttonClass, CONTAINER, PageHero, SectionTitle } from '../components/ui'
+import { buttonClass, CONTAINER, SectionTitle } from '../components/ui'
 import { useSiteContent } from '../content/site'
-import { useSiteImage } from '../context/CmsContext'
 import { useLanguage } from '../context/LanguageContext'
 import { CATEGORIES, type Advertisement, type Product } from '../types'
 
@@ -20,7 +19,6 @@ export default function Products() {
   const [ads, setAds] = useState<Advertisement[]>([])
   const { t } = useLanguage()
   const site = useSiteContent()
-  const heroImage = useSiteImage('products_hero')
 
   const SORT_OPTIONS = [
     { value: '', label: t('products.sortBy') },
@@ -63,7 +61,6 @@ export default function Products() {
 
   return (
     <>
-      <PageHero {...site.products.hero} image={heroImage} />
       <AdBannerSection ads={ads} />
       <section className={`py-16 md:py-24 ${CONTAINER}`}>
         <SectionTitle eyebrow={site.products.eyebrow} title={site.products.title} />

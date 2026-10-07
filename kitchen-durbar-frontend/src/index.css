@@ -26,8 +26,9 @@
 }
 
 @theme inline {
-  --font-sans: 'Fira Sans', sans-serif;
-  --font-display: 'DM Serif Display', serif;
+  /* Mukta covers Devanagari (Nepali), which Fira Sans and DM Serif Display lack. */
+  --font-sans: 'Fira Sans', 'Mukta', sans-serif;
+  --font-display: 'DM Serif Display', 'Mukta', serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

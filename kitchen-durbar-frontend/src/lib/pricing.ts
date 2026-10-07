@@ -12,17 +12,19 @@
  * | Subtotal                  | Discount | Shipping  |
  * |----------------------------|---------:|----------:|
  * | < NPR 100,000               |       0% | NPR 1,500 |
- * | NPR 100,000 - NPR 200,000   |       3% |      Free |
- * | > NPR 200,000                |       6% |      Free |
+ * | NPR 100,000 - NPR 200,000   |       0% |      Free |
+ * | > NPR 200,000                |       0% |      Free |
+ *
+ * Discounts are currently switched off (both rates are 0).
  */
 
 export const SHIPPING_FEE = 1500
 
 const DISCOUNT_TIER_1_MIN = 100000 // inclusive
-const DISCOUNT_TIER_2_MIN = 200000 // inclusive upper bound of the 3% tier
+const DISCOUNT_TIER_2_MIN = 200000 // inclusive upper bound of tier 1
 
-const DISCOUNT_TIER_1_RATE = 0.03
-const DISCOUNT_TIER_2_RATE = 0.06
+const DISCOUNT_TIER_1_RATE = 0
+const DISCOUNT_TIER_2_RATE = 0
 
 export function calculateDiscountAndShipping(subtotal: number): { discount: number; shipping: number; rate: number } {
   if (subtotal < DISCOUNT_TIER_1_MIN) {
