@@ -4,7 +4,7 @@ import { api, apiErrorMessage } from '../api/client'
 import { CtaBand } from '../components/sections'
 import { buttonClass, CONTAINER, INPUT_CLASS, LABEL_CLASS, PageHero, SectionTitle } from '../components/ui'
 import { useSiteContent } from '../content/site'
-import { useProjects, useSiteImage, useTestimonials } from '../context/CmsContext'
+import { useCms, useProjects, useSiteImage, useTestimonials } from '../context/CmsContext'
 import { useLanguage } from '../context/LanguageContext'
 
 export default function Projects() {
@@ -59,12 +59,13 @@ const emptyFeedback = { name: '', rating: 0, message: '' }
 
 /**
  * Approved client feedback (Admin → Testimonials) plus a form for visitors to
- * leave their own star rating and message. Submissions are saved hidden on
- * the backend and only appear here once an admin makes them visible.
+ * leave their own star rating and message. Submissions appear here as soon
+ * as they're saved; an admin can hide any of them later.
  */
 function FeedbackSection() {
   const { t } = useLanguage()
   const testimonials = useTestimonials()
+  const { refresh } = useCms()
   const [form, setForm] = useState(emptyFeedback)
   const [hover, setHover] = useState(0)
   const [busy, setBusy] = useState(false)
@@ -81,6 +82,7 @@ function FeedbackSection() {
     setBusy(true)
     try {
       await api.post('/testimonials', payload)
+      refresh()
       setForm(emptyFeedback)
       setStatus({ ok: true, message: t('feedback.success') })
     } catch (err) {

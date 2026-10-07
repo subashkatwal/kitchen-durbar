@@ -211,7 +211,7 @@ const en: SiteContent = {
       ['500+', 'Clients'],
       ['A–Z', 'Solutions'],
     ],
-    sinceValue: 'Since 2017',
+    sinceValue: 'Since 2022',
     sinceLabel: 'Hospitality expertise',
     showcaseBadge: 'First company to make it',
     showcaseEyebrow: 'Signature build',
@@ -250,7 +250,7 @@ const en: SiteContent = {
     hero: {
       eyebrow: 'About Kitchen Durbar Solutions',
       title: 'Built on practical kitchen expertise.',
-      copy: 'Since 2017, we have helped hospitality and institutional teams turn demanding briefs into dependable working kitchens.',
+      copy: 'Since 2022, we have helped hospitality and institutional teams turn demanding briefs into dependable working kitchens.',
     },
     partnerEyebrow: 'A complete partner',
     partnerTitle: 'We think beyond the equipment list.',
@@ -290,7 +290,7 @@ const en: SiteContent = {
   product: {
     specifications: 'Specifications',
     applications: 'Applications',
-    applicationItems: ['Restaurants', 'Hotels & resorts', 'Central kitchens', 'Institutions'],
+    applicationItems: ['Restaurants', 'Hotels & resorts', 'Central kitchens', 'Institutions', 'Cloud Kitchen', 'Bakery', 'Banquet'],
     related: 'Related equipment',
   },
   projectsPage: {
@@ -318,6 +318,7 @@ const en: SiteContent = {
       ['Chimney', 'Commercial hoods and chimneys sized to capture smoke, heat and grease over every cooking line.'],
       ['Ducting', 'Ducting routed and sized for proper extraction, airflow and easy cleaning.'],
       ['Entire Kitchen Servicing', 'Routine maintenance and repairs to keep every station in service.'],
+      ['Cutlery and Crockery', 'Durable cutlery, plates and serveware chosen for busy commercial service.'],
     ],
   },
   contact: {
@@ -388,7 +389,7 @@ const ne: SiteContent = {
       ['500+', 'ग्राहक'],
       ['A–Z', 'समाधान'],
     ],
-    sinceValue: '२०१७ देखि',
+    sinceValue: '२०२२ देखि',
     sinceLabel: 'आतिथ्य क्षेत्रको अनुभव',
     showcaseBadge: 'यो बनाउने पहिलो कम्पनी',
     showcaseEyebrow: 'हाम्रो विशेष निर्माण',
@@ -427,7 +428,7 @@ const ne: SiteContent = {
     hero: {
       eyebrow: 'किचन दरबार सोलुसन्सको बारेमा',
       title: 'व्यावहारिक भान्सा अनुभवमा आधारित।',
-      copy: '२०१७ देखि, हामीले आतिथ्य र संस्थागत टोलीहरूलाई कठिन आवश्यकताहरूलाई भरपर्दो भान्सामा बदल्न सहयोग गरेका छौं।',
+      copy: '२०२२ देखि, हामीले आतिथ्य र संस्थागत टोलीहरूलाई कठिन आवश्यकताहरूलाई भरपर्दो भान्सामा बदल्न सहयोग गरेका छौं।',
     },
     partnerEyebrow: 'पूर्ण साझेदार',
     partnerTitle: 'हामी उपकरणको सूचीभन्दा पर सोच्छौं।',
@@ -466,7 +467,7 @@ const ne: SiteContent = {
   product: {
     specifications: 'विशेषताहरू',
     applications: 'प्रयोग क्षेत्र',
-    applicationItems: ['रेस्टुरेन्ट', 'होटल तथा रिसोर्ट', 'केन्द्रीय भान्सा', 'संस्थाहरू'],
+    applicationItems: ['रेस्टुरेन्ट', 'होटल तथा रिसोर्ट', 'केन्द्रीय भान्सा', 'संस्थाहरू', 'क्लाउड किचन', 'बेकरी', 'ब्याङ्क्वेट'],
     related: 'सम्बन्धित उपकरण',
   },
   projectsPage: {
@@ -494,6 +495,7 @@ const ne: SiteContent = {
       ['चिम्नी', 'हरेक पकाउने लाइनमा धुवाँ, तातो र चिल्लो तान्न मिलाइएका व्यावसायिक हुड र चिम्नी।'],
       ['डक्टिङ', 'राम्रो धुवाँ निकास, हावा प्रवाह र सजिलो सफाइका लागि मिलाइएको डक्टिङ।'],
       ['सम्पूर्ण भान्सा सर्भिसिङ', 'हरेक स्टेसन चालु राख्न नियमित मर्मत र सम्भार।'],
+      ['कटलरी र क्रोकरी', 'व्यस्त व्यावसायिक सेवाका लागि छानिएका टिकाउ कटलरी, प्लेट र सर्भिङ सामग्री।'],
     ],
   },
   contact: {
