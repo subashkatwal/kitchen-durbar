@@ -9,22 +9,22 @@ what's actually persisted on the Order and never trusted from the client.
 | Subtotal                    | Discount | Shipping  |
 |------------------------------|---------:|----------:|
 | < NPR 100,000                |       0% | NPR 1,500 |
-| NPR 100,000 - NPR 200,000    |       3% |      Free |
-| > NPR 200,000                |       6% |      Free |
+| NPR 100,000 - NPR 200,000    |       0% |      Free |
+| > NPR 200,000                |       0% |      Free |
 
-6% is a hard ceiling - there is no tier above it, so nothing needs to clamp
-the rate as prices grow.
+Discounts are currently switched off (both rates are 0); the tier structure
+is kept so they can be turned back on by changing the rates alone.
 """
 
 from decimal import Decimal
 
 SHIPPING_FEE = Decimal('1500')
 
-DISCOUNT_TIER_1_MIN = Decimal('100000')  # inclusive - 100,000 itself gets the 3% tier
-DISCOUNT_TIER_2_MIN = Decimal('200000')  # inclusive upper bound of the 3% tier - 200,000 itself is still 3%
+DISCOUNT_TIER_1_MIN = Decimal('100000')  # inclusive - 100,000 itself gets free shipping
+DISCOUNT_TIER_2_MIN = Decimal('200000')  # inclusive upper bound of tier 1
 
-DISCOUNT_TIER_1_RATE = Decimal('0.03')
-DISCOUNT_TIER_2_RATE = Decimal('0.06')
+DISCOUNT_TIER_1_RATE = Decimal('0')
+DISCOUNT_TIER_2_RATE = Decimal('0')
 
 
 def calculate_discount_and_shipping(subtotal: Decimal) -> tuple[Decimal, Decimal]:

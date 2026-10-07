@@ -72,7 +72,7 @@ class TestimonialViewSet(ActiveForPublicMixin, viewsets.ModelViewSet):
     """
     Mounted at /api/v1/testimonials. Public read, admin write - except
     create, which anyone may call to leave feedback from the Projects page.
-    A visitor's submission is saved hidden until an admin makes it visible.
+    A visitor's submission is shown straight away; an admin can hide it later.
     """
 
     queryset = Testimonial.objects.all()
@@ -98,12 +98,6 @@ class TestimonialViewSet(ActiveForPublicMixin, viewsets.ModelViewSet):
         if self.action == 'create' and not self._is_staff():
             return PublicFeedbackSerializer
         return TestimonialSerializer
-
-    def perform_create(self, serializer):
-        if self._is_staff():
-            serializer.save()
-        else:
-            serializer.save(is_active=False)
 
 
 class SolutionViewSet(ActiveForPublicMixin, viewsets.ModelViewSet):
