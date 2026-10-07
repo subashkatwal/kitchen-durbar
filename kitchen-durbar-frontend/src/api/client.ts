@@ -41,10 +41,14 @@ async function refreshAccessToken(): Promise<string | null> {
   if (!refresh) return null
   try {
     const { data } = await axios.post(`${API_URL}/refresh`, { refresh })
-    setTokens(data.access)
+    // ROTATE_REFRESH_TOKENS is on, so the backend sends a new refresh token too.
+    setTokens(data.access, data.refresh)
     return data.access as string
-  } catch {
-    clearTokens()
+  } catch (err) {
+    // Only a rejected refresh token ends the session - a network error or a
+    // waking-up server shouldn't log the user out.
+    const status = axios.isAxiosError(err) ? err.response?.status : undefined
+    if (status === 400 || status === 401) clearTokens()
     return null
   }
 }

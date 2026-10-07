@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { api, clearTokens, getAccessToken, setTokens } from '../api/client'
 import type { OTPPurpose, User } from '../types'
@@ -33,11 +34,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false)
       return
     }
-    api
-      .get<User>('/me')
-      .then((res) => setUser(res.data))
-      .catch(() => clearTokens())
-      .finally(() => setLoading(false))
+    let cancelled = false
+    async function loadUser() {
+      // The free-plan backend sleeps when idle and fails requests while it
+      // wakes up. Only a 4xx means the session is really gone - retry
+      // network errors and 5xx instead of logging the user out.
+      for (let attempt = 0; !cancelled; attempt++) {
+        try {
+          const res = await api.get<User>('/me')
+          if (!cancelled) setUser(res.data)
+          return
+        } catch (err) {
+          const status = axios.isAxiosError(err) ? err.response?.status : undefined
+          if (status && status < 500) {
+            clearTokens()
+            return
+          }
+          if (attempt >= 5) return
+          await new Promise((resolve) => setTimeout(resolve, 3000 * (attempt + 1)))
+        }
+      }
+    }
+    loadUser().finally(() => {
+      if (!cancelled) setLoading(false)
+    })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   async function login(email: string, password: string) {
